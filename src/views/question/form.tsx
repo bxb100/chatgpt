@@ -53,8 +53,8 @@ export const QuestionForm = ({
 
   const addFromClipboard = useCallback(async () => {
     const { text, file } = await Clipboard.read();
-    console.log(`text`, text);
-    console.log(`file`, file);
+    // console.log(`text`, text);
+    // console.log(`file`, file);
     if (file && (text.startsWith("Image") || Object.keys(formats).includes(path.extname(file)))) {
       setFiles((files) => [...new Set([...files, file!])].sort());
     }
