@@ -38,6 +38,13 @@
       "mode": "view"
     },
     {
+      "name": "image",
+      "title": "Generate Image",
+      "subtitle": "ChatGPT",
+      "description": "Generate or manipulate images with DALL·E",
+      "mode": "view"
+    },
+    {
       "name": "saved",
       "title": "Saved Answers",
       "subtitle": "ChatGPT",

@@ -110,3 +110,11 @@ export interface CSVPrompt {
   act: string;
   prompt: string;
 }
+
+export type GenerateImageParams = {
+  prompt: string;
+  model: string;
+  size: string;
+  n: string;
+  style: string | undefined;
+};

@@ -9,3 +9,4 @@
 <h1 align="center">ChatGPT</h1>
 
 original in [here](https://www.raycast.com/abielzulio/chatgpt), but this build for myself
+ 

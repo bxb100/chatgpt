@@ -54,6 +54,8 @@ declare type Preferences = ExtensionPreferences
 declare namespace Preferences {
   /** Preferences accessible in the `ask` command */
   export type Ask = ExtensionPreferences & {}
+  /** Preferences accessible in the `image` command */
+  export type Image = ExtensionPreferences & {}
   /** Preferences accessible in the `saved` command */
   export type Saved = ExtensionPreferences & {}
   /** Preferences accessible in the `history` command */
@@ -74,6 +76,8 @@ declare namespace Preferences {
 declare namespace Arguments {
   /** Arguments passed to the `ask` command */
   export type Ask = {}
+  /** Arguments passed to the `image` command */
+  export type Image = {}
   /** Arguments passed to the `saved` command */
   export type Saved = {}
   /** Arguments passed to the `history` command */
