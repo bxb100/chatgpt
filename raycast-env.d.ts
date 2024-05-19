@@ -55,7 +55,14 @@ declare namespace Preferences {
   /** Preferences accessible in the `ask` command */
   export type Ask = ExtensionPreferences & {}
   /** Preferences accessible in the `image` command */
-  export type Image = ExtensionPreferences & {}
+  export type Image = ExtensionPreferences & {
+  /** Use Different Provider - Use different provider for image generation */
+  "usingDifferentProvider"?: boolean,
+  /** API Key - Enter your personal API Key */
+  "otherProviderToken"?: string,
+  /** API Endpoint - Enter your custom API endpoint */
+  "otherProviderEndpoint"?: string
+}
   /** Preferences accessible in the `saved` command */
   export type Saved = ExtensionPreferences & {}
   /** Preferences accessible in the `history` command */

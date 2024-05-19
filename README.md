@@ -48,4 +48,11 @@ You will need to have [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io/)
 4. Go to Raycast, run `Import Extension` and select the folder
 
 
+## Support Provider
+- [OpenAI](https://openai.com/)
+- [Burn Hair](https://burn.hair/register?aff=FryM) / 头顶冒火
+- [Cloudflare AI](https://ai.cloudflare.com/) but need using [openai-cf-workers-ai](https://github.com/chand1012/openai-cf-workers-ai) wrapper
+- [Groq](https://console.groq.com/)
+- [Ollama](https://ollama.com/blog/openai-compatibility)
+
 > original written by [Abiel Zulio M](https://github.com/abielzulio) and published in [Raycast Store](https://www.raycast.com/abielzulio/chatgpt)

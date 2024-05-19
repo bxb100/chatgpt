@@ -42,7 +42,31 @@
       "title": "Generate Image",
       "subtitle": "ChatGPT",
       "description": "Generate or manipulate images with DALL·E",
-      "mode": "view"
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "usingDifferentProvider",
+          "description": "Use different provider for image generation",
+          "type": "checkbox",
+          "title": "Use Different Provider",
+          "required": false,
+          "label": "Enable will override the default provider"
+        },
+        {
+          "name": "otherProviderToken",
+          "description": "Enter your personal API Key",
+          "type": "password",
+          "title": "API Key",
+          "required": false
+        },
+        {
+          "name": "otherProviderEndpoint",
+          "description": "Enter your custom API endpoint",
+          "type": "textfield",
+          "title": "API Endpoint",
+          "required": false
+        }
+      ]
     },
     {
       "name": "saved",

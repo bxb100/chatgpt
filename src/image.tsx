@@ -1,19 +1,28 @@
-import { useChatGPT } from "./hooks/useChatGPT";
+import { buildOpenAI, useChatGPT } from "./hooks/useChatGPT";
 import { useEffect, useState } from "react";
-import { Action, ActionPanel, Detail, Form, Grid, Icon, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Detail, Form, getPreferenceValues, Grid, Icon, useNavigation } from "@raycast/api";
 import { showFailureToast, useForm } from "@raycast/utils";
 import { ImageGenerateParams } from "openai/src/resources/images";
 import { GenerateImage, GenerateImageParams } from "./type";
 import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
+import OpenAI from "openai";
 
 export default function Image() {
-  const openai = useChatGPT();
+  let openai: OpenAI;
+  const references = getPreferenceValues<Preferences.Image>();
+  if (references.usingDifferentProvider) {
+    openai = buildOpenAI(references.otherProviderToken!, references.otherProviderEndpoint);
+  } else {
+    openai = useChatGPT();
+  }
 
   const {
+    isLoading: isLoadingSections,
     setValue: setSections,
     value: sections,
     removeValue,
   } = useLocalStorage<{ prompt: string; date: Date; model: string; images: GenerateImage[] }[]>("image");
+
   const [isLoading, setIsLoading] = useState(true);
   const [generateBody, setGenerateBody] = useState<GenerateImageParams>({
     model: "dall-e-3",
@@ -71,7 +80,7 @@ export default function Image() {
     />
   ) : (
     <Grid
-      isLoading={isLoading}
+      isLoading={isLoading || isLoadingSections}
       columns={5}
       fit={Grid.Fit.Fill}
       inset={Grid.Inset.Zero}
@@ -99,7 +108,13 @@ export default function Image() {
       {(sections || []).map((section, index) => (
         <Grid.Section
           key={index}
-          title={"DALL-E " + (section.model === "dall-e-3" ? 3 : 2) + ": " + section.prompt}
+          title={
+            "DALL-E " +
+            (section.model === "dall-e-3" ? 3 : 2) +
+            ": " +
+            section.prompt.slice(0, 100) +
+            (section.prompt.length > 100 ? "..." : "")
+          }
           subtitle={section.date.toLocaleString()}
         >
           {section.images.map((image) => (
@@ -116,12 +131,24 @@ export default function Image() {
                         actions={
                           <ActionPanel>
                             <Action.OpenInBrowser title={"Open in Browser"} url={image.url} />
+                            <Action.CopyToClipboard content={section.prompt} title={"Copy Prompt"} />
                             {image.revised_prompt && (
-                              <Action.CopyToClipboard content={image.revised_prompt} title={"Copy Prompt"} />
+                              <Action.CopyToClipboard content={image.revised_prompt} title={"Copy Revised Prompt"} />
                             )}
                           </ActionPanel>
                         }
-                        markdown={`> ${image.revised_prompt?.trim() || ""}\n\n![${image.revised_prompt}](${image.url})`}
+                        markdown={`![${image.revised_prompt}](${image.url})`}
+                        metadata={
+                          <Detail.Metadata>
+                            <Detail.Metadata.Label title="Model" text={section.model} />
+                            <Detail.Metadata.Label title={"Generate Date"} text={section.date.toLocaleString()} />
+                            <Detail.Metadata.Label title="Prompt" text={section.prompt} />
+                            {image.revised_prompt && (
+                              <Detail.Metadata.Label title="Revised Prompt" text={image.revised_prompt} />
+                            )}
+                            <Detail.Metadata.Link title="Image URL" text="Open" target={image.url} />
+                          </Detail.Metadata>
+                        }
                       />
                     }
                   />
@@ -181,6 +208,7 @@ const Forms = ({
         } else if (numValue < 1 || numValue > 10) {
           return "Must be between 1 and 10";
         }
+        return undefined;
       },
     },
   });
@@ -210,17 +238,17 @@ const Forms = ({
       </Form.Dropdown>
       <Form.Dropdown title={"Size"} {...itemProps.size}>
         {/*https://platform.openai.com/docs/api-reference/images*/}
-        {values.model === "dall-e-2" ? (
-          <>
-            <Form.Dropdown.Item value="256x256" title="256x256" />
-            <Form.Dropdown.Item value="512x512" title="512x512" />
-            <Form.Dropdown.Item value="1024x1024" title="1024x1024" />
-          </>
-        ) : (
+        {values.model === "dall-e-3" ? (
           <>
             <Form.Dropdown.Item value="1024x1024" title="1024x1024" />
             <Form.Dropdown.Item value="1024x1792" title="1024x1792" />
             <Form.Dropdown.Item value="1792x1024" title="1792x1024" />
+          </>
+        ) : (
+          <>
+            <Form.Dropdown.Item value="256x256" title="256x256" />
+            <Form.Dropdown.Item value="512x512" title="512x512" />
+            <Form.Dropdown.Item value="1024x1024" title="1024x1024" />
           </>
         )}
       </Form.Dropdown>
