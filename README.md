@@ -36,4 +36,16 @@ This build for myself
 <img src="./metadata/6.png" width="800">
 </p>
 
-original written by [Abiel Zulio M](https://github.com/abielzulio) and published in [Raycast Store](https://www.raycast.com/abielzulio/chatgpt)
+## Installation
+
+Currently, you need to clone this repo and install it locally in developer mode.
+
+You will need to have [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io/) installed.
+
+1. Clone this repo `git clone https://github.com/bxb100/chatgpt.git`
+2. Go to the folder `cd chatgpt`
+3. Install dependencies `npm install`
+4. Go to Raycast, run `Import Extension` and select the folder
+
+
+> original written by [Abiel Zulio M](https://github.com/abielzulio) and published in [Raycast Store](https://www.raycast.com/abielzulio/chatgpt)
