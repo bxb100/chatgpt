@@ -53,6 +53,10 @@ export const getConfigUrl = (params: Preferences) => {
 
 export const checkFileValidity = (file: string): boolean => {
   const fileExtension = path.extname(file);
+  if (file.startsWith("http") && supportImageFormats.includes(fileExtension)) {
+    return true;
+  }
+
   const acceptedFileExtensions = Object.keys(formats);
   return acceptedFileExtensions.includes(fileExtension);
 };
@@ -66,7 +70,12 @@ export const formats: { [K: string]: string } = {
   ".gif": "image/gif",
 };
 
+export const supportImageFormats = Object.keys(formats);
+
 export const imgFormat = (file: string) => {
+  if (file.startsWith("http")) {
+    return file;
+  }
   const fileExtension = path.extname(file);
   let type = formats[fileExtension];
   if (!type) {

@@ -12,7 +12,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DEFAULT_MODEL } from "../../hooks/useModel";
 import { QuestionFormProps } from "../../type";
-import { checkFileValidity, formats } from "../../utils";
+import { checkFileValidity, supportImageFormats } from "../../utils";
 import path from "node:path";
 
 export const QuestionForm = ({
@@ -53,9 +53,15 @@ export const QuestionForm = ({
 
   const addFromClipboard = useCallback(async () => {
     const { text, file } = await Clipboard.read();
-    // console.log(`text`, text);
-    // console.log(`file`, file);
-    if (file && (text.startsWith("Image") || Object.keys(formats).includes(path.extname(file)))) {
+    console.log(`text`, text);
+    console.log(`file`, file);
+    // It's a URL link
+    if (text && text.startsWith("http") && supportImageFormats.includes(path.extname(text))) {
+      setFiles((files) => [...new Set([...files, text])].sort());
+      return;
+    }
+    // It's a clipboard image object or file
+    if (file && (text.startsWith("Image") || supportImageFormats.includes(path.extname(file)))) {
       setFiles((files) => [...new Set([...files, file!])].sort());
     }
   }, [setFiles]);
