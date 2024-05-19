@@ -1,14 +1,20 @@
 import { useChatGPT } from "./hooks/useChatGPT";
 import { useEffect, useState } from "react";
-import { Action, ActionPanel, Form, Grid, Icon, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Detail, Form, Grid, Icon, useNavigation } from "@raycast/api";
 import { showFailureToast, useForm } from "@raycast/utils";
 import { ImageGenerateParams } from "openai/src/resources/images";
-import { GenerateImageParams } from "./type";
+import { GenerateImage, GenerateImageParams } from "./type";
+import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
 
 export default function Image() {
   const openai = useChatGPT();
+
+  const {
+    setValue: setSections,
+    value: sections,
+    removeValue,
+  } = useLocalStorage<{ prompt: string; date: Date; model: string; images: GenerateImage[] }[]>("image");
   const [isLoading, setIsLoading] = useState(true);
-  const [sections, setSections] = useState<{ prompt: string; model: string; images: string[] }[]>([]);
   const [generateBody, setGenerateBody] = useState<GenerateImageParams>({
     model: "dall-e-3",
     n: "1",
@@ -21,6 +27,7 @@ export default function Image() {
 
   useEffect(() => {
     if (firstEnter || !formSubmit) {
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
@@ -34,13 +41,14 @@ export default function Image() {
           style: generateBody.model == "dall-e-3" ? (generateBody.style as ImageGenerateParams["style"]) : undefined,
         });
 
-        setSections((prev) => [
+        await setSections([
           {
             prompt: generateBody.prompt,
             model: generateBody.model,
-            images: response.data.map((d) => d.url).filter(Boolean) as string[],
+            date: new Date(),
+            images: response.data.filter((x) => Boolean(x.url)) as GenerateImage[],
           },
-          ...prev,
+          ...(sections || []),
         ]);
       } catch (error) {
         await showFailureToast(error);
@@ -59,6 +67,7 @@ export default function Image() {
         setFirstEnter(false);
         setFormSubmit(true);
       }}
+      setFirstEnter={setFirstEnter}
     />
   ) : (
     <Grid
@@ -81,20 +90,42 @@ export default function Image() {
               />
             }
             title="Generate"
-            icon={Icon.Checkmark}
+            icon={Icon.AppWindowList}
           />
+          <Action title="Clear Cache" icon={Icon.Trash} style={Action.Style.Destructive} onAction={removeValue} />
         </ActionPanel>
       }
     >
-      {sections.map((section) => (
-        <Grid.Section title={"DALL-E " + (section.model === "dall-e-3" ? 3 : 2) + ": " + section.prompt}>
+      {(sections || []).map((section, index) => (
+        <Grid.Section
+          key={index}
+          title={"DALL-E " + (section.model === "dall-e-3" ? 3 : 2) + ": " + section.prompt}
+          subtitle={section.date.toLocaleString()}
+        >
           {section.images.map((image) => (
             <Grid.Item
-              key={image}
-              content={image}
+              key={image.url}
+              content={image.url}
+              title={image.revised_prompt}
               actions={
                 <ActionPanel>
-                  <Action.CopyToClipboard title={"Copy URL"} content={image} />
+                  <Action.Push
+                    title="Detail"
+                    target={
+                      <Detail
+                        actions={
+                          <ActionPanel>
+                            <Action.OpenInBrowser title={"Open in Browser"} url={image.url} />
+                            {image.revised_prompt && (
+                              <Action.CopyToClipboard content={image.revised_prompt} title={"Copy Prompt"} />
+                            )}
+                          </ActionPanel>
+                        }
+                        markdown={`> ${image.revised_prompt?.trim() || ""}\n\n![${image.revised_prompt}](${image.url})`}
+                      />
+                    }
+                  />
+                  <Action.OpenInBrowser title={"Open in Browser"} url={image.url} />
                   <Action.Push
                     onPush={() => setFormSubmit(false)}
                     target={
@@ -108,7 +139,13 @@ export default function Image() {
                       />
                     }
                     title="Generate"
-                    icon={Icon.Checkmark}
+                    icon={Icon.AppWindowList}
+                  />
+                  <Action
+                    title="Clear Cache"
+                    icon={Icon.Trash}
+                    style={Action.Style.Destructive}
+                    onAction={removeValue}
                   />
                 </ActionPanel>
               }
@@ -120,7 +157,16 @@ export default function Image() {
   );
 }
 
-const Forms = ({ body, onSubmit }: { body: GenerateImageParams; onSubmit: (body: GenerateImageParams) => void }) => {
+const Forms = ({
+  body,
+  onSubmit,
+  setFirstEnter,
+}: {
+  body: GenerateImageParams;
+  onSubmit: (body: GenerateImageParams) => void;
+  setFirstEnter?: (v: boolean) => void;
+}) => {
+  const { pop } = useNavigation();
   const { itemProps, handleSubmit, values } = useForm<GenerateImageParams>({
     onSubmit: onSubmit,
     initialValues: body,
@@ -143,6 +189,17 @@ const Forms = ({ body, onSubmit }: { body: GenerateImageParams; onSubmit: (body:
       actions={
         <ActionPanel>
           <Action.SubmitForm icon={Icon.Checkmark} title="Generate" onSubmit={handleSubmit} />
+          <Action
+            title={"Show Grid"}
+            icon={Icon.AppWindowGrid2x2}
+            onAction={() => {
+              if (setFirstEnter) {
+                setFirstEnter(false);
+              } else {
+                pop();
+              }
+            }}
+          />
         </ActionPanel>
       }
     >

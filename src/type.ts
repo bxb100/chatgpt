@@ -118,3 +118,9 @@ export type GenerateImageParams = {
   n: string;
   style: string | undefined;
 };
+
+export interface GenerateImage {
+  b64_json?: string;
+  revised_prompt?: string;
+  url: string;
+}
