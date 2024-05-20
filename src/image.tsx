@@ -1,20 +1,19 @@
 import { buildOpenAI, useChatGPT } from "./hooks/useChatGPT";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Action, ActionPanel, Detail, Form, getPreferenceValues, Grid, Icon, useNavigation } from "@raycast/api";
 import { showFailureToast, useForm } from "@raycast/utils";
 import { ImageGenerateParams } from "openai/src/resources/images";
 import { GenerateImage, GenerateImageParams } from "./type";
 import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
-import OpenAI from "openai";
 
 export default function Image() {
-  let openai: OpenAI;
-  const references = getPreferenceValues<Preferences.Image>();
-  if (references.usingDifferentProvider) {
-    openai = buildOpenAI(references.otherProviderToken!, references.otherProviderEndpoint);
-  } else {
-    openai = useChatGPT();
-  }
+  const openai = useMemo(() => {
+    const references = getPreferenceValues<Preferences.Image>();
+    if (references.usingDifferentProvider) {
+      return buildOpenAI(references.otherProviderToken!, references.otherProviderEndpoint);
+    }
+    return useChatGPT();
+  }, []);
 
   const {
     isLoading: isLoadingSections,
@@ -108,13 +107,7 @@ export default function Image() {
       {(sections || []).map((section, index) => (
         <Grid.Section
           key={index}
-          title={
-            "DALL-E " +
-            (section.model === "dall-e-3" ? 3 : 2) +
-            ": " +
-            section.prompt.slice(0, 100) +
-            (section.prompt.length > 100 ? "..." : "")
-          }
+          title={section.model + ": " + section.prompt.slice(0, 100) + (section.prompt.length > 100 ? "..." : "")}
           subtitle={section.date.toLocaleString()}
         >
           {section.images.map((image) => (
@@ -126,6 +119,7 @@ export default function Image() {
                 <ActionPanel>
                   <Action.Push
                     title="Detail"
+                    icon={Icon.Bird}
                     target={
                       <Detail
                         actions={
@@ -141,8 +135,8 @@ export default function Image() {
                         metadata={
                           <Detail.Metadata>
                             <Detail.Metadata.Label title="Model" text={section.model} />
-                            <Detail.Metadata.Label title={"Generate Date"} text={section.date.toLocaleString()} />
                             <Detail.Metadata.Label title="Prompt" text={section.prompt} />
+                            <Detail.Metadata.Label title={"Generate Date"} text={section.date.toLocaleString()} />
                             {image.revised_prompt && (
                               <Detail.Metadata.Label title="Revised Prompt" text={image.revised_prompt} />
                             )}
@@ -194,7 +188,7 @@ const Forms = ({
   setFirstEnter?: (v: boolean) => void;
 }) => {
   const { pop } = useNavigation();
-  const { itemProps, handleSubmit, values } = useForm<GenerateImageParams>({
+  const { itemProps, handleSubmit, values, setValue } = useForm<GenerateImageParams>({
     onSubmit: onSubmit,
     initialValues: body,
     validation: {
@@ -212,6 +206,7 @@ const Forms = ({
       },
     },
   });
+
   return (
     <Form
       actions={
@@ -231,11 +226,18 @@ const Forms = ({
         </ActionPanel>
       }
     >
-      <Form.TextField title="Prompt" {...itemProps.prompt} placeholder="a white siamese cat" />
-      <Form.Dropdown title="Model" {...itemProps.model}>
-        <Form.Dropdown.Item value="dall-e-2" title="DALL-E 2" />
-        <Form.Dropdown.Item value="dall-e-3" title="DALL-E 3" />
-      </Form.Dropdown>
+      <Form.TextArea title="Prompt" {...itemProps.prompt} placeholder="a white siamese cat" />
+      {/*<Form.Dropdown title="Model" {...itemProps.model}>*/}
+      {/*  <Form.Dropdown.Item value="dall-e-2" title="DALL-E 2" />*/}
+      {/*  <Form.Dropdown.Item value="dall-e-3" title="DALL-E 3" />*/}
+      {/*</Form.Dropdown>*/}
+      <Form.TextField
+        title="Model"
+        id="model"
+        onChange={(v) => setValue("model", v)}
+        defaultValue="dall-e-3"
+        storeValue={true}
+      />
       <Form.Dropdown title={"Size"} {...itemProps.size}>
         {/*https://platform.openai.com/docs/api-reference/images*/}
         {values.model === "dall-e-3" ? (
