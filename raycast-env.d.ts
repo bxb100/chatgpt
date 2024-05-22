@@ -71,13 +71,10 @@ declare namespace Preferences {
   export type Conversation = ExtensionPreferences & {}
   /** Preferences accessible in the `model` command */
   export type Model = ExtensionPreferences & {}
-  /** Preferences accessible in the `summarize` command */
-  export type Summarize = ExtensionPreferences & {
-  /** Prompt template for the website - Template support {{content}} tag, and it will replace with the content */
-  "promptTemplate"?: string,
-  /** Prompt template for the YouTube - Template support {{content}} tag, and it will replace with the video transcript */
-  "promptTemplate2"?: string
-}
+  /** Preferences accessible in the `action` command */
+  export type Action = ExtensionPreferences & {}
+  /** Preferences accessible in the `quick` command */
+  export type Quick = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -93,7 +90,9 @@ declare namespace Arguments {
   export type Conversation = {}
   /** Arguments passed to the `model` command */
   export type Model = {}
-  /** Arguments passed to the `summarize` command */
-  export type Summarize = {}
+  /** Arguments passed to the `action` command */
+  export type Action = {}
+  /** Arguments passed to the `quick` command */
+  export type Quick = {}
 }
 

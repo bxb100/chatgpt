@@ -17,9 +17,9 @@ export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefi
       })
       .join("\n") || "";
 
-  const markdown = `${
+  const markdown = `### Answer\n${
     isStreaming ? streamData?.answer : chat.answer
-  }\n\`\`\`\n${chat.question.trimEnd()}\n\`\`\`\n${images}\n\n`;
+  }\n\n---\n\n### Question\n${chat.question.trimEnd()}\n${images}\n\n`;
 
   return <List.Item.Detail markdown={markdown} />;
 };

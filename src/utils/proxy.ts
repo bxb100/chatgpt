@@ -2,7 +2,7 @@ import { getPreferenceValues } from "@raycast/api";
 import { Agent } from "http";
 import { ProxyAgent } from "proxy-agent";
 
-export function useProxy(): Agent | undefined {
+export function proxyAgent(): Agent | undefined {
   const prefs = getPreferenceValues<{
     useProxy?: boolean;
     proxyProtocol?: string;

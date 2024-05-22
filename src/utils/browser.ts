@@ -1,18 +1,13 @@
-import { BrowserExtension, environment, getPreferenceValues } from "@raycast/api";
+import { BrowserExtension, environment } from "@raycast/api";
 import { YoutubeTranscript } from "youtube-transcript";
 import fetch from "cross-fetch";
-import * as fs from "node:fs";
 import { showFailureToast } from "@raycast/utils";
-
-global.fetch = fetch;
 
 export function canAccessBrowserExtension() {
   return environment.canAccess(BrowserExtension);
 }
 
-const DEFAULT_PROMPT = `Summarize the text below and give me a list of bullet points with key insights and the most important facts.
-
-{{content}}`;
+export const DEFAULT_PROMPT = `Summarize the text below and give me a list of bullet points with key insights and the most important facts.{{content}}`;
 
 // https://i.stack.imgur.com/g2X8z.gif
 const ASCII_TABLES = Object.entries({
@@ -45,36 +40,27 @@ const ASCII_TABLES = Object.entries({
   "&#126;": "~",
 });
 
-export async function getBrowserContent() {
+export async function getBrowserContent(prompt: string): Promise<string> {
   if (!canAccessBrowserExtension()) {
-    return null;
+    throw new Error("Browser extension is not available");
   }
-  const promptConfig = getPreferenceValues<{
-    promptTemplate?: string;
-    promptTemplate2?: string;
-  }>();
-
-  // console.debug("promptConfig: ", promptConfig)
-  const promptTemplate = readFile(promptConfig.promptTemplate);
-  const promptTemplate2 = readFile(promptConfig.promptTemplate2);
-
-  let prompt: string;
 
   const tabs = await BrowserExtension.getTabs();
   const activeTab = (tabs.filter((tab) => tab.active) || [])[0];
 
   // todo: add setting to enable/disable this feature
   if (activeTab && activeTab.url.startsWith("https://www.youtube.com/watch?v=")) {
+    global.fetch = fetch;
     // not official API, so it may break in the future
     const content = await YoutubeTranscript.fetchTranscript(activeTab.url, {
       lang: "en",
     }).then((transcript) => {
       return transcript.map((item) => item.text).join("\n");
     });
-    prompt = promptTemplate2 || DEFAULT_PROMPT;
+    prompt = prompt || DEFAULT_PROMPT;
     prompt = prompt.replaceAll(/\{\{\s?content.*?}}/g, content);
   } else {
-    prompt = await dynamicExecution(promptTemplate || DEFAULT_PROMPT);
+    prompt = await dynamicExecution(prompt || DEFAULT_PROMPT);
   }
 
   // console.debug("prompt: ", prompt);
@@ -137,11 +123,4 @@ function replace(prompt: string, entries: [string, string][]): string {
     });
   }
   return result;
-}
-
-function readFile(path?: string) {
-  if (!path) {
-    return "";
-  }
-  return fs.readFileSync(path, "utf-8");
 }

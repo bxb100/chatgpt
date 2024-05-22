@@ -87,6 +87,7 @@ export interface ChatHook {
   ask: PromiseFunctionWithThreeArg<string, string[], Model>;
   clear: PromiseFunctionNoArg;
   streamData: Chat | undefined;
+  historyIsLoading: boolean;
 }
 
 export interface ChangeModelProp {

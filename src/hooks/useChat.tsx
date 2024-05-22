@@ -7,9 +7,9 @@ import { buildUserMessage, chatTransformer } from "../utils";
 import { useAutoTTS } from "./useAutoTTS";
 import { getConfiguration, useChatGPT } from "./useChatGPT";
 import { useHistory } from "./useHistory";
-import { useProxy } from "./useProxy";
 import { ChatCompletion, ChatCompletionChunk } from "openai/resources/chat/completions";
 import { Stream } from "openai/streaming";
+import { proxyAgent } from "../utils/proxy";
 
 export function useChat<T extends Chat>(props: T[]): ChatHook {
   const [data, setData] = useState<Chat[]>(props);
@@ -30,7 +30,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
 
   const history = useHistory();
   const isAutoTTS = useAutoTTS();
-  const proxy = useProxy();
+  const proxy = proxyAgent();
   const chatGPT = useChatGPT();
 
   async function ask(question: string, files: string[], model: Model) {
@@ -154,7 +154,18 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
   }, [setData]);
 
   return useMemo(
-    () => ({ data, setData, isLoading, setLoading, selectedChatId, setSelectedChatId, ask, clear, streamData }),
-    [data, setData, isLoading, setLoading, selectedChatId, setSelectedChatId, ask, clear, streamData]
+    () => ({
+      data,
+      setData,
+      isLoading,
+      setLoading,
+      selectedChatId,
+      setSelectedChatId,
+      ask,
+      clear,
+      streamData,
+      historyIsLoading: history.isLoading,
+    }),
+    [data, setData, isLoading, setLoading, selectedChatId, setSelectedChatId, ask, clear, streamData, history.isLoading]
   );
 }

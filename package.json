@@ -97,27 +97,16 @@
       "mode": "view"
     },
     {
-      "name": "summarize",
-      "title": "Summarize Website",
-      "subtitle": "ChatGPT",
-      "description": "Summarize Website and YouTube video",
-      "mode": "view",
-      "preferences": [
-        {
-          "name": "promptTemplate",
-          "description": "Template support {{content}} tag, and it will replace with the content",
-          "type": "file",
-          "title": "Prompt template for the website",
-          "required": false
-        },
-        {
-          "name": "promptTemplate2",
-          "description": "Template support {{content}} tag, and it will replace with the video transcript",
-          "type": "file",
-          "title": "Prompt template for the YouTube",
-          "required": false
-        }
-      ]
+      "name": "action",
+      "title": "Actions Hub",
+      "description": "Lists actions to execute with ChatGPT",
+      "mode": "view"
+    },
+    {
+      "name": "quick",
+      "title": "Quick Actions",
+      "description": "Quick actions to execute with ChatGPT",
+      "mode": "view"
     }
   ],
   "keywords": [
