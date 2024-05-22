@@ -2,8 +2,8 @@ import { Chat, Message, Model } from "../type";
 import path from "node:path";
 import * as fs from "node:fs";
 import OpenAI from "openai/index";
-import ChatCompletionContentPart = OpenAI.ChatCompletionContentPart;
 import { TikTokenClass } from "./tikToken";
+import ChatCompletionContentPart = OpenAI.ChatCompletionContentPart;
 
 export function chatTransformer(model: Model, chat: Chat[]): Message[] {
   const messages: Message[] = [{ role: "system", content: model.prompt }];
@@ -80,4 +80,10 @@ export const buildUserMessage = (question: string, files: string[]) => {
     });
   });
   return content;
+};
+
+export const isSquare = (size: string) => {
+  if (!size.includes("x")) return false;
+  const [w, h] = size.split("x");
+  return parseInt(w) < 1024 && w === h;
 };

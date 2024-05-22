@@ -128,3 +128,11 @@ export interface GenerateImage {
   revised_prompt?: string;
   url: string;
 }
+
+export interface StoredImage {
+  prompt: string;
+  date: Date;
+  size: string;
+  model: string;
+  images: GenerateImage[];
+}

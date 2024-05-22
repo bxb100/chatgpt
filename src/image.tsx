@@ -1,25 +1,39 @@
-import { buildOpenAI, useChatGPT } from "./hooks/useChatGPT";
-import { useEffect, useMemo, useState } from "react";
-import { Action, ActionPanel, Detail, Form, getPreferenceValues, Grid, Icon, useNavigation } from "@raycast/api";
+import { buildOpenAI } from "./hooks/useChatGPT";
+import { useEffect, useState } from "react";
+import {
+  Action,
+  ActionPanel,
+  Detail,
+  Form,
+  getPreferenceValues,
+  Grid,
+  Icon,
+  Keyboard,
+  useNavigation,
+} from "@raycast/api";
 import { showFailureToast, useForm } from "@raycast/utils";
-import { GenerateImage, GenerateImageParams, OpenAIImageGenerateParams } from "./type";
+import { GenerateImage, GenerateImageParams, OpenAIImageGenerateParams, StoredImage } from "./type";
 import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
+import OpenAI from "openai/index";
+import fetch from "cross-fetch";
+import { getConfigUrl, isSquare } from "./utils";
 
 export default function Image() {
-  const openai = useMemo(() => {
-    const references = getPreferenceValues<Preferences.Image>();
-    if (references.usingDifferentProvider) {
-      return buildOpenAI(references.otherProviderToken!, references.otherProviderEndpoint);
+  const [openai] = useState(() => {
+    const preferences = getPreferenceValues<Preferences & Preferences.Image>();
+    if (preferences.usingDifferentProvider) {
+      return buildOpenAI(preferences.otherProviderToken!, preferences.otherProviderEndpoint);
+    } else {
+      return buildOpenAI(preferences.apiKey, getConfigUrl(preferences));
     }
-    return useChatGPT();
-  }, []);
+  });
 
   const {
     isLoading: isLoadingSections,
     setValue: setSections,
     value: sections,
     removeValue,
-  } = useLocalStorage<{ prompt: string; date: Date; model: string; images: GenerateImage[] }[]>("image");
+  } = useLocalStorage<StoredImage[]>("image");
 
   const [isLoading, setIsLoading] = useState(true);
   const [generateBody, setGenerateBody] = useState<GenerateImageParams>({
@@ -53,6 +67,7 @@ export default function Image() {
           {
             prompt: generateBody.prompt,
             model: generateBody.model,
+            size: generateBody.size,
             date: new Date(),
             images: response.data.filter((x) => Boolean(x.url)) as GenerateImage[],
           },
@@ -99,8 +114,15 @@ export default function Image() {
             }
             title="Generate"
             icon={Icon.AppWindowList}
+            shortcut={Keyboard.Shortcut.Common.New}
           />
-          <Action title="Clear Cache" icon={Icon.Trash} style={Action.Style.Destructive} onAction={removeValue} />
+          <Action
+            title="Clear Cache"
+            icon={Icon.Trash}
+            style={Action.Style.Destructive}
+            onAction={removeValue}
+            shortcut={Keyboard.Shortcut.Common.RemoveAll}
+          />
         </ActionPanel>
       }
     >
@@ -140,6 +162,7 @@ export default function Image() {
                           <Detail.Metadata>
                             <Detail.Metadata.Label title="Model" text={section.model} />
                             <Detail.Metadata.Label title="Prompt" text={section.prompt} />
+                            <Detail.Metadata.Label title="Size" text={section.size} />
                             <Detail.Metadata.Label title={"Generate Date"} text={section.date.toLocaleString()} />
                             {image.revised_prompt && (
                               <Detail.Metadata.Label title="Revised Prompt" text={image.revised_prompt} />
@@ -151,6 +174,22 @@ export default function Image() {
                     }
                   />
                   <Action.OpenInBrowser title={"Open in Browser"} url={image.url} />
+                  {isSquare(section.size) && (
+                    <Action
+                      title={"Create Five Variation"}
+                      onAction={async () => {
+                        setIsLoading(true);
+                        try {
+                          const item = await createVariation(openai, section.prompt, image.url);
+                          await setSections([item, ...(sections || [])]);
+                        } catch (e) {
+                          await showFailureToast(e);
+                        }
+                        setIsLoading(false);
+                      }}
+                      icon={Icon.ComputerChip}
+                    />
+                  )}
                   <Action.Push
                     onPush={() => setFormSubmit(false)}
                     target={
@@ -165,12 +204,14 @@ export default function Image() {
                     }
                     title="Generate"
                     icon={Icon.AppWindowList}
+                    shortcut={Keyboard.Shortcut.Common.New}
                   />
                   <Action
                     title="Clear Cache"
                     icon={Icon.Trash}
                     style={Action.Style.Destructive}
                     onAction={removeValue}
+                    shortcut={Keyboard.Shortcut.Common.RemoveAll}
                   />
                 </ActionPanel>
               }
@@ -269,3 +310,24 @@ const Forms = ({
     </Form>
   );
 };
+
+async function createVariation(openai: OpenAI, originalPrompt: string, url: string): Promise<StoredImage> {
+  const res = await fetch(url);
+  console.log(res.ok, res.status, res.statusText, res.headers.get("content-type"));
+  const response = await openai.images.createVariation({
+    // currently only support dall-e-2
+    // https://platform.openai.com/docs/api-reference/images/createVariation
+    model: "dall-e-2",
+    size: "256x256",
+    n: 5,
+    image: res,
+  });
+
+  return {
+    prompt: `[variation] ${originalPrompt}`,
+    model: "dall-e-2",
+    size: "256x256",
+    date: new Date(),
+    images: response.data.filter((x) => Boolean(x.url)) as GenerateImage[],
+  };
+}
