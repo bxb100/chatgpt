@@ -14,13 +14,14 @@ type ConfigContextType = {
   modelData: Model[];
   defaultAction: () => IAction | undefined;
   initIsLoading: boolean;
+  modelIsLoading: boolean;
 };
 
 export const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
 export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoading, value, setValue } = useLocalStorage<IAction[]>("actions");
-  const { data: modelData } = useModel();
+  const { data: modelData, isLoading: modelIsLoading } = useModel();
   const [initIsLoading, setInitIsLoading] = useState(true);
 
   useEffect(() => {
@@ -92,6 +93,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateAction,
         defaultAction,
         initIsLoading,
+        modelIsLoading
       }}
     >
       {children}

@@ -99,13 +99,13 @@
     {
       "name": "action",
       "title": "Actions Hub",
-      "description": "Lists actions to execute with ChatGPT",
+      "description": "Lists custom actions",
       "mode": "view"
     },
     {
       "name": "quick",
-      "title": "Quick Actions",
-      "description": "Quick actions to execute with ChatGPT",
+      "title": "Quick Action",
+      "description": "Using default action to quick execute",
       "mode": "view"
     }
   ],

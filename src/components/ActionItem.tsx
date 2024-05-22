@@ -14,13 +14,16 @@ interface ActionItemProps {
 export function ActionItem({ item }: ActionItemProps) {
   const { push } = useNavigation();
 
-  const { addAction, deleteAction, setDefaultAction, modelData, updateAction } = useConfig();
+  const { addAction, deleteAction, setDefaultAction, modelData, updateAction, modelIsLoading } = useConfig();
 
   const [model, setModel] = useState<Model | undefined>();
 
   useEffect(() => {
+    if (modelIsLoading) {
+      return;
+    }
     setModel(modelData.find((m) => m.id === item.modelId));
-  }, [modelData, item.modelId]);
+  }, [modelIsLoading, item]);
 
   return (
     <List.Item
@@ -31,6 +34,15 @@ export function ActionItem({ item }: ActionItemProps) {
       actions={
         <ActionPanel>
           <Action
+            title={"Set Quick Action"}
+            onAction={() => {
+              setDefaultAction(item.id);
+            }}
+            icon={Icon.Star}
+            shortcut={Keyboard.Shortcut.Common.Pin}
+          />
+
+          <Action
             title="Ask GPT"
             onAction={() => handleAction(item, push, model || DEFAULT_MODEL)}
             icon={Icon.Play}
@@ -39,17 +51,9 @@ export function ActionItem({ item }: ActionItemProps) {
               key: "r",
             }}
           />
-          <Action
-            title={"Set Default"}
-            onAction={() => {
-              setDefaultAction(item.id);
-            }}
-            icon={Icon.Star}
-            shortcut={Keyboard.Shortcut.Common.Pin}
-          />
 
           <Action.Push
-            title="Update Action"
+            title="Edit Action"
             target={<MergeActionForm action={item} updateAction={updateAction} />}
             shortcut={Keyboard.Shortcut.Common.Edit}
             icon={Icon.Pencil}
