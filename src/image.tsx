@@ -2,8 +2,7 @@ import { buildOpenAI, useChatGPT } from "./hooks/useChatGPT";
 import { useEffect, useMemo, useState } from "react";
 import { Action, ActionPanel, Detail, Form, getPreferenceValues, Grid, Icon, useNavigation } from "@raycast/api";
 import { showFailureToast, useForm } from "@raycast/utils";
-import { ImageGenerateParams } from "openai/src/resources/images";
-import { GenerateImage, GenerateImageParams } from "./type";
+import { GenerateImage, GenerateImageParams, OpenAIImageGenerateParams } from "./type";
 import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
 
 export default function Image() {
@@ -45,8 +44,9 @@ export default function Image() {
           prompt: generateBody.prompt,
           model: generateBody.model,
           n: Number(generateBody.n),
-          size: generateBody.size as ImageGenerateParams["size"],
-          style: generateBody.model == "dall-e-3" ? (generateBody.style as ImageGenerateParams["style"]) : undefined,
+          size: generateBody.size as OpenAIImageGenerateParams["size"],
+          style:
+            generateBody.model == "dall-e-3" ? (generateBody.style as OpenAIImageGenerateParams["style"]) : undefined,
         });
 
         await setSections([
@@ -107,7 +107,10 @@ export default function Image() {
       {(sections || []).map((section, index) => (
         <Grid.Section
           key={index}
-          title={section.model + ": " + section.prompt.slice(0, 100) + (section.prompt.length > 100 ? "..." : "")}
+          title={
+            `${section.model}: ${section.prompt}`.slice(0, 100) +
+            (section.model.length + section.prompt.length > 98 ? "..." : "")
+          }
           subtitle={section.date.toLocaleString()}
         >
           {section.images.map((image) => (
@@ -125,6 +128,7 @@ export default function Image() {
                         actions={
                           <ActionPanel>
                             <Action.OpenInBrowser title={"Open in Browser"} url={image.url} />
+                            <Action.CopyToClipboard content={section.model} title={"Copy Model"} />
                             <Action.CopyToClipboard content={section.prompt} title={"Copy Prompt"} />
                             {image.revised_prompt && (
                               <Action.CopyToClipboard content={image.revised_prompt} title={"Copy Revised Prompt"} />

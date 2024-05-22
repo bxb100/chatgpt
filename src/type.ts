@@ -1,5 +1,9 @@
+import React from "react";
 import OpenAI from "openai";
 import ChatCompletionMessageParam = OpenAI.ChatCompletionMessageParam;
+import ImageGenerateParams = OpenAI.ImageGenerateParams;
+
+export type OpenAIImageGenerateParams = ImageGenerateParams;
 
 export type Set<T> = React.Dispatch<React.SetStateAction<T>>;
 
