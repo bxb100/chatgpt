@@ -30,7 +30,7 @@ This build for myself
 <img src="./metadata/5.png" width="800">
 </p>
 
-### Summary Website & YouTube
+### Actions Hub & Quick Action
 
 <p align="center">
 <img src="./metadata/6.png" width="800">
