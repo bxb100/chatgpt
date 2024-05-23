@@ -93,7 +93,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateAction,
         defaultAction,
         initIsLoading,
-        modelIsLoading
+        modelIsLoading,
       }}
     >
       {children}

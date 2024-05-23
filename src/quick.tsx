@@ -1,9 +1,11 @@
 import { ConfigProvider, useConfig } from "./hooks/ConfigContext";
 import { useEffect, useState } from "react";
-import { popToRoot, showHUD } from "@raycast/api";
+import { Detail, popToRoot, showHUD } from "@raycast/api";
 import { IAction } from "./constants/initialActions";
 import ResultPage from "./components/ResultPage";
 import { DEFAULT_MODEL, useModel } from "./hooks/useModel";
+import { Model } from "./type";
+import handleAction from "./utils/handleAction";
 
 export default function Command() {
   return (
@@ -16,7 +18,7 @@ export default function Command() {
 function Quick() {
   const { isLoading, defaultAction, initIsLoading } = useConfig();
   const [action, setAction] = useState<IAction | null>(null);
-  const [model, setModel] = useState(DEFAULT_MODEL);
+  const [model, setModel] = useState<Model | null>(null);
   const { isLoading: modelLoading, data } = useModel();
 
   useEffect(() => {
@@ -35,5 +37,21 @@ function Quick() {
     setAction(action);
   }, [isLoading, initIsLoading, modelLoading]);
 
-  return action ? <ResultPage action={action} model={model} /> : <></>;
+  const [text, setText] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (action && model) {
+      (async () => {
+        await handleAction(action, setText, () => {
+          popToRoot({ clearSearchBar: true });
+        });
+      })();
+    }
+  }, [model, action]);
+
+  return action && model && text ? (
+    <ResultPage action={action} model={model} text={text} />
+  ) : (
+    <Detail isLoading={true} />
+  );
 }

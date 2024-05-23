@@ -1,7 +1,6 @@
-import { Action, ActionPanel, Detail, getSelectedText, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Detail, useNavigation } from "@raycast/api";
 import { IAction } from "../constants/initialActions";
 import { useEffect, useMemo, useState } from "react";
-import { getBrowserContent } from "../utils/browser";
 import { Chat, Model } from "../type";
 import { showFailureToast } from "@raycast/utils";
 import { useChat } from "../hooks/useChat";
@@ -9,9 +8,10 @@ import { useChat } from "../hooks/useChat";
 interface ResultPageProps {
   action: IAction;
   model: Model;
+  text: string;
 }
 
-export default function ResultPage({ action, model }: ResultPageProps) {
+export default function ResultPage({ action, model, text }: ResultPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const chat = useChat<Chat>([]);
 
@@ -27,12 +27,6 @@ export default function ResultPage({ action, model }: ResultPageProps) {
     setIsLoading(true);
     (async () => {
       try {
-        let text: string;
-        if (action.useRaycastExtension) {
-          text = await getBrowserContent(action.prompt);
-        } else {
-          text = action.prompt + (await getSelectedText());
-        }
         await chat.ask(text, [], model);
       } catch (error) {
         await showFailureToast(error);

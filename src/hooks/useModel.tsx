@@ -79,19 +79,18 @@ export function useModel(): ModelHook {
     (async () => {
       setLoading(true);
       const storedModels = await LocalStorage.getItem<string>("models");
-
-      if (!storedModels) {
-        setData([DEFAULT_MODEL]);
+      let models: Model[];
+      if (storedModels == undefined) {
+        models = [DEFAULT_MODEL];
       } else {
-        setData((previous) => [...previous, ...JSON.parse(storedModels)]);
+        models = JSON.parse(storedModels);
       }
+      persist(models).then(() => setData(models));
       setLoading(false);
     })();
   }, []);
 
-  useEffect(() => {
-    LocalStorage.setItem("models", JSON.stringify(data));
-  }, [data]);
+  const persist = (data: Model[]) => LocalStorage.setItem("models", JSON.stringify(data));
 
   const add = useCallback(
     async (model: Model) => {
@@ -100,25 +99,25 @@ export function useModel(): ModelHook {
         style: Toast.Style.Animated,
       });
       const newModel: Model = { ...model, created_at: new Date().toISOString() };
-      setData([...data, newModel]);
+      const models = [...data, newModel];
+      persist(models).then(() => setData(models));
       toast.title = "Model saved!";
       toast.style = Toast.Style.Success;
     },
-    [setData, data]
+    [data]
   );
 
   const update = useCallback(
     async (model: Model) => {
-      setData((prev) => {
-        return prev.map((x) => {
-          if (x.id === model.id) {
-            return model;
-          }
-          return x;
-        });
+      const models = data.map((x) => {
+        if (x.id === model.id) {
+          x = model;
+        }
+        return x;
       });
+      persist(models).then(() => setData(models));
     },
-    [setData, data]
+    [data]
   );
 
   const remove = useCallback(
@@ -128,7 +127,7 @@ export function useModel(): ModelHook {
         style: Toast.Style.Animated,
       });
       const newModels: Model[] = data.filter((oldModel) => oldModel.id !== model.id);
-      setData(newModels);
+      persist(newModels).then(() => setData(newModels));
       toast.title = "Model removed!";
       toast.style = Toast.Style.Success;
     },
@@ -141,7 +140,7 @@ export function useModel(): ModelHook {
       style: Toast.Style.Animated,
     });
     const newModels: Model[] = data.filter((oldModel) => oldModel.id === DEFAULT_MODEL.id);
-    setData(newModels);
+    persist(newModels).then(() => setData(newModels));
     toast.title = "Models cleared!";
     toast.style = Toast.Style.Success;
   }, [setData]);

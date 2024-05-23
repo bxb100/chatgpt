@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { DEFAULT_MODEL } from "../hooks/useModel";
 import { Model } from "../type";
 import handleAction from "../utils/handleAction";
+import ResultPage from "./ResultPage";
 
 interface ActionItemProps {
   item: IAction;
@@ -44,7 +45,11 @@ export function ActionItem({ item }: ActionItemProps) {
 
           <Action
             title="Ask GPT"
-            onAction={() => handleAction(item, push, model || DEFAULT_MODEL)}
+            onAction={() =>
+              handleAction(item, (text) =>
+                push(<ResultPage action={item} model={model || DEFAULT_MODEL} text={text} />)
+              )
+            }
             icon={Icon.Play}
             shortcut={{
               modifiers: ["cmd"],
