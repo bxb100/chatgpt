@@ -11,7 +11,7 @@ export const DEFAULT_MODEL: Model = {
   name: "Default",
   prompt: "You are a helpful assistant.",
   option: "gpt-3.5-turbo",
-  temperature: "1",
+  temperature: "0.8",
   pinned: false,
   vision: false,
 };
