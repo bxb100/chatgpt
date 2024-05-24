@@ -58,6 +58,8 @@ You will need to have [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io/)
 
 ## Others
 
+- [PromptLab](https://github.com/SKaplanOfficial/Raycast-PromptLab) more elegant and powerful
+
 - Due to the raycast memory limit(100Mb), so if you want using [tiktoken](https://github.com/openai/tiktoken), the only
   way is installing [tiktoken-cli](https://github.com/bxb100/tiktoken-cli)
 
