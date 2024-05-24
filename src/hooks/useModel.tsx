@@ -13,7 +13,7 @@ export const DEFAULT_MODEL: Model = {
   option: "gpt-3.5-turbo",
   temperature: "0.8",
   pinned: false,
-  vision: false,
+  vision: false
 };
 
 export function useModel(): ModelHook {
@@ -56,15 +56,15 @@ export function useModel(): ModelHook {
           await showToast(
             err.message.includes("401")
               ? {
-                  title: "Could not authenticate to API",
-                  message: "Please ensure that your API token is valid",
-                  style: Toast.Style.Failure,
-                }
+                title: "Could not authenticate to API",
+                message: "Please ensure that your API token is valid",
+                style: Toast.Style.Failure
+              }
               : {
-                  title: "Error",
-                  message: err.message,
-                  style: Toast.Style.Failure,
-                }
+                title: "Error",
+                message: err.message,
+                style: Toast.Style.Failure
+              }
           );
         })
         .finally(() => {
@@ -79,57 +79,42 @@ export function useModel(): ModelHook {
     (async () => {
       setLoading(true);
       const storedModels = await LocalStorage.getItem<string>("models");
-      let models: Model[];
-      if (storedModels == undefined) {
-        models = [DEFAULT_MODEL];
+      if (storedModels == undefined || storedModels.length == 0) {
+        setData([DEFAULT_MODEL]);
       } else {
-        models = JSON.parse(storedModels);
+        setData(JSON.parse(storedModels));
       }
-      persist(models).then(() => setData(models));
       setLoading(false);
     })();
   }, []);
 
-  const persist = (data: Model[]) => LocalStorage.setItem("models", JSON.stringify(data));
+  useEffect(() => {
+    if (data) {
+      LocalStorage.setItem("models", JSON.stringify(data));
+    }
+  }, [data]);
 
   const add = useCallback(
     async (model: Model) => {
-      const toast = await showToast({
-        title: "Saving your model...",
-        style: Toast.Style.Animated,
-      });
+
       const newModel: Model = { ...model, created_at: new Date().toISOString() };
-      const models = [...data, newModel];
-      persist(models).then(() => setData(models));
-      toast.title = "Model saved!";
-      toast.style = Toast.Style.Success;
+      setData([...data, newModel]);
     },
     [data]
   );
 
-  const update = useCallback(
-    async (model: Model) => {
-      const models = data.map((x) => {
-        if (x.id === model.id) {
-          x = model;
-        }
-        return x;
-      });
-      persist(models).then(() => setData(models));
+  const update = useCallback(async (model: Model) => {
+      setData(data =>
+        data.find((x) => x.id === model.id) ?
+          data.map((x) => x.id == model.id ? { ...model, updated_at: new Date().toISOString() } : x) :
+          [...data, { ...model, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }]
+      );
     },
     [data]
   );
 
-  const remove = useCallback(
-    async (model: Model) => {
-      const toast = await showToast({
-        title: "Remove your model...",
-        style: Toast.Style.Animated,
-      });
-      const newModels: Model[] = data.filter((oldModel) => oldModel.id !== model.id);
-      persist(newModels).then(() => setData(newModels));
-      toast.title = "Model removed!";
-      toast.style = Toast.Style.Success;
+  const remove = useCallback(async (model: Model) => {
+      setData((data) => data.filter((oldModel) => oldModel.id !== model.id));
     },
     [setData, data]
   );
@@ -137,10 +122,13 @@ export function useModel(): ModelHook {
   const clear = useCallback(async () => {
     const toast = await showToast({
       title: "Clearing your models ...",
-      style: Toast.Style.Animated,
+      style: Toast.Style.Animated
     });
-    const newModels: Model[] = data.filter((oldModel) => oldModel.id === DEFAULT_MODEL.id);
-    persist(newModels).then(() => setData(newModels));
+    setData(data =>
+      data.find(x => x.id == DEFAULT_MODEL.id) ?
+        data.filter((oldModel) => oldModel.id === DEFAULT_MODEL.id) :
+        [DEFAULT_MODEL]
+    );
     toast.title = "Models cleared!";
     toast.style = Toast.Style.Success;
   }, [setData]);
