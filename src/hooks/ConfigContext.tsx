@@ -30,7 +30,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     setInitIsLoading(true);
     if (value == undefined) {
-      setValue(initialActions);
+      setValue(initialActions).then(() => setInitIsLoading(false));
     }
     setInitIsLoading(false);
   }, [isLoading]);

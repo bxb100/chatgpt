@@ -1,7 +1,7 @@
-import { getSelectedText, showToast, Toast } from "@raycast/api";
+import { showToast, Toast } from "@raycast/api";
 import { IAction } from "../constants/initialActions";
-import { getBrowserContent } from "./browser";
 import { showFailureToast } from "@raycast/utils";
+import { renders } from "./template";
 
 async function handleAction(
   action: IAction,
@@ -11,7 +11,7 @@ async function handleAction(
   const toast = await showToast(Toast.Style.Animated, `Executing ${action.title}`);
 
   try {
-    const text = await getText(action);
+    const text = await renders(action.prompt);
     callback(text);
     toast.style = Toast.Style.Success;
     toast.message = `${action.title} Executed`;
@@ -19,16 +19,6 @@ async function handleAction(
     onFail && onFail(error);
     await showFailureToast(error, { title: `Failed to execute ${action.title}` });
   }
-}
-
-export async function getText(action: IAction) {
-  let text: string;
-  if (action.useRaycastExtension) {
-    text = await getBrowserContent(action.prompt);
-  } else {
-    text = action.prompt + (await getSelectedText());
-  }
-  return text;
 }
 
 export default handleAction;

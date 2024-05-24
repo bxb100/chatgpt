@@ -2,13 +2,15 @@ import { exec, execSync } from "node:child_process";
 import { Chat } from "../type";
 import { homedir } from "node:os";
 
+const CLI_PATH = `${homedir()}/.cargo/bin/tiktoken-cli`;
+
 export class TikTokenClass {
   private readonly contextWindow: number = 3750;
   private exist: boolean = false;
 
   constructor(readonly model: string) {
     this.exist = Object.keys(CONTEXT_WINDOW).includes(model);
-    exec(`command -v ${homedir()}/.cargo/bin/tiktoken-cli >/dev/null`, () => {
+    exec(`command -v ${CLI_PATH} >/dev/null`, () => {
       this.exist = false;
     });
     this.contextWindow = CONTEXT_WINDOW[model] || this.contextWindow;
@@ -24,12 +26,9 @@ export class TikTokenClass {
       return this._countOpenAITokens(text);
     }
     try {
-      const count = execSync(
-        `${homedir()}/.cargo/bin/tiktoken-cli  --role ${role} --model ${this.model} --text '${text}'`,
-        {
-          encoding: "utf-8",
-        }
-      );
+      const count = execSync(`${CLI_PATH}  --role ${role} --model ${this.model} --text '${text}'`, {
+        encoding: "utf-8",
+      });
       return parseInt(count);
     } catch (_err) {
       this.exist = false;

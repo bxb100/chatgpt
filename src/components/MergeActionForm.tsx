@@ -14,7 +14,7 @@ interface AddActionFormProps {
 export default function MergeActionForm({ addAction, updateAction, action }: AddActionFormProps) {
   const { pop } = useNavigation();
 
-  const { itemProps, handleSubmit, values } = useForm<IAction>({
+  const { itemProps, handleSubmit } = useForm<IAction>({
     onSubmit: async (value) => {
       value.id = action?.id || Date.now().toString();
       value.default = action?.default || false;
@@ -32,8 +32,10 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
     validation: {
       prompt: (value) => {
         // simply check
-        if (value && values.useRaycastExtension && !value.includes("{{")) {
+        if (value && !value.includes("{{")) {
           return "Need set dynamic tag";
+        } else if (!value) {
+          return "Prompt is required";
         }
       },
     },
@@ -44,7 +46,6 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
       icon: action?.icon || "Paragraph",
       modelId: action?.modelId || "default",
       default: action?.default || false,
-      useRaycastExtension: action?.useRaycastExtension || false,
     },
   });
 
@@ -73,15 +74,10 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
       <Form.TextField title="Description" placeholder="Enter description" {...itemProps.description} />
       <Form.Dropdown title="Icon" {...itemProps.icon}>
         {Object.keys(Icon).map((key) => (
-          <Form.Dropdown.Item key={key} value={key} title={key} icon={Icon[key as keyof typeof Icon]}/>
+          <Form.Dropdown.Item key={key} value={key} title={key} icon={Icon[key as keyof typeof Icon]} />
         ))}
       </Form.Dropdown>
-      <Form.TextArea
-        title="Prompt"
-        placeholder="Enter prompt"
-        {...itemProps.prompt}
-        info={values.useRaycastExtension ? "Need set dynamic tag" : undefined}
-      />
+      <Form.TextArea title="Prompt" placeholder="Enter prompt" {...itemProps.prompt} />
       {
         // the value not match any values warning so annoying
         (defaultModel || separateDefaultModel) && (
@@ -98,8 +94,6 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
           </Form.Dropdown>
         )
       }
-
-      <Form.Checkbox label={"Using Raycast Extension"} {...itemProps.useRaycastExtension} />
     </Form>
   );
 }

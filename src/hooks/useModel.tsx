@@ -13,7 +13,7 @@ export const DEFAULT_MODEL: Model = {
   option: "gpt-3.5-turbo",
   temperature: "0.8",
   pinned: false,
-  vision: false
+  vision: false,
 };
 
 export function useModel(): ModelHook {
@@ -56,15 +56,15 @@ export function useModel(): ModelHook {
           await showToast(
             err.message.includes("401")
               ? {
-                title: "Could not authenticate to API",
-                message: "Please ensure that your API token is valid",
-                style: Toast.Style.Failure
-              }
+                  title: "Could not authenticate to API",
+                  message: "Please ensure that your API token is valid",
+                  style: Toast.Style.Failure,
+                }
               : {
-                title: "Error",
-                message: err.message,
-                style: Toast.Style.Failure
-              }
+                  title: "Error",
+                  message: err.message,
+                  style: Toast.Style.Failure,
+                }
           );
         })
         .finally(() => {
@@ -96,24 +96,25 @@ export function useModel(): ModelHook {
 
   const add = useCallback(
     async (model: Model) => {
-
       const newModel: Model = { ...model, created_at: new Date().toISOString() };
       setData([...data, newModel]);
     },
     [data]
   );
 
-  const update = useCallback(async (model: Model) => {
-      setData(data =>
-        data.find((x) => x.id === model.id) ?
-          data.map((x) => x.id == model.id ? { ...model, updated_at: new Date().toISOString() } : x) :
-          [...data, { ...model, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }]
+  const update = useCallback(
+    async (model: Model) => {
+      setData((data) =>
+        data.find((x) => x.id === model.id)
+          ? data.map((x) => (x.id == model.id ? { ...model, updated_at: new Date().toISOString() } : x))
+          : [...data, { ...model, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }]
       );
     },
     [data]
   );
 
-  const remove = useCallback(async (model: Model) => {
+  const remove = useCallback(
+    async (model: Model) => {
       setData((data) => data.filter((oldModel) => oldModel.id !== model.id));
     },
     [setData, data]
@@ -122,12 +123,12 @@ export function useModel(): ModelHook {
   const clear = useCallback(async () => {
     const toast = await showToast({
       title: "Clearing your models ...",
-      style: Toast.Style.Animated
+      style: Toast.Style.Animated,
     });
-    setData(data =>
-      data.find(x => x.id == DEFAULT_MODEL.id) ?
-        data.filter((oldModel) => oldModel.id === DEFAULT_MODEL.id) :
-        [DEFAULT_MODEL]
+    setData((data) =>
+      data.find((x) => x.id == DEFAULT_MODEL.id)
+        ? data.filter((oldModel) => oldModel.id === DEFAULT_MODEL.id)
+        : [DEFAULT_MODEL]
     );
     toast.title = "Models cleared!";
     toast.style = Toast.Style.Success;

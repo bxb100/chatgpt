@@ -294,6 +294,7 @@
     "@types/uuid": "^9.0.0",
     "cross-fetch": "^4.0.0",
     "csv-parse": "^5.5.3",
+    "mustache": "^4.2.0",
     "openai": "^4.40.0",
     "proxy-agent": "^6.3.1",
     "say": "^0.16.0",
@@ -302,6 +303,7 @@
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.5",
+    "@types/mustache": "^4.2.5",
     "@types/node": "18.8.3",
     "@types/react": "18.2.27",
     "eslint": "^7.32.0",

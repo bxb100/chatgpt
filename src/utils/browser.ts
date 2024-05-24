@@ -1,13 +1,10 @@
 import { BrowserExtension, environment } from "@raycast/api";
 import { YoutubeTranscript } from "youtube-transcript";
 import fetch from "cross-fetch";
-import { showFailureToast } from "@raycast/utils";
 
 export function canAccessBrowserExtension() {
   return environment.canAccess(BrowserExtension);
 }
-
-export const DEFAULT_PROMPT = `Summarize the text below and give me a list of bullet points with key insights and the most important facts.{{content}}`;
 
 // https://i.stack.imgur.com/g2X8z.gif
 const ASCII_TABLES = Object.entries({
@@ -48,28 +45,25 @@ export async function getBrowserContent(prompt: string): Promise<string> {
   const tabs = await BrowserExtension.getTabs();
   const activeTab = (tabs.filter((tab) => tab.active) || [])[0];
 
-  // todo: add setting to enable/disable this feature
+  let content: string;
   if (activeTab && activeTab.url.startsWith("https://www.youtube.com/watch?v=")) {
     global.fetch = fetch;
     // not official API, so it may break in the future
-    const content = await YoutubeTranscript.fetchTranscript(activeTab.url, {
+    content = await YoutubeTranscript.fetchTranscript(activeTab.url, {
       lang: "en",
     }).then((transcript) => {
       return transcript.map((item) => item.text).join("\n");
     });
-    prompt = prompt || DEFAULT_PROMPT;
-    prompt = prompt.replaceAll(/\{\{\s?content.*?}}/g, content);
   } else {
-    prompt = await dynamicExecution(prompt || DEFAULT_PROMPT);
+    content = await dynamicExecution(prompt);
   }
-
-  // console.debug("prompt: ", prompt);
-  const entries = Object.entries(activeTab || []);
-  return replace(prompt, entries);
+  return ASCII_TABLES.reduce((acc, [key, value]) => {
+    return acc.replaceAll(key, value);
+  }, content);
 }
 
 const regex =
-  /\{\{\s*content\s*(format="(?<format>markdown|text|html)")?\s*(cssSelector="(?<cssSelector>.+)")?\s*(tabId=(?<tabId>\d+))?\s*}}/gm;
+  /content\s*(format="(?<format>markdown|text|html)")?\s*(cssSelector="(?<cssSelector>.+)")?\s*(tabId=(?<tabId>\d+))?/gm;
 
 /**
  * dynamic execution by the tag
@@ -84,43 +78,19 @@ const regex =
  */
 async function dynamicExecution(prompt: string) {
   let result = prompt;
-  const errors: string[] = [];
   for (const m of prompt.matchAll(regex)) {
     if (m) {
       const groups = m.groups;
       if (groups) {
         const { format, cssSelector, tabId } = groups;
-        try {
-          const content = await BrowserExtension.getContent({
-            format: format ? (format as "markdown" | "text" | "html") : "markdown",
-            cssSelector: cssSelector ? cssSelector : undefined,
-            tabId: tabId ? parseInt(tabId) : undefined,
-          });
-          result = result.replace(m[0], content);
-        } catch (error) {
-          errors.push(`Tag "${m[0]}" execution failed: ${error}`);
-        }
+        const content = await BrowserExtension.getContent({
+          format: format ? (format as "markdown" | "text" | "html") : "markdown",
+          cssSelector: cssSelector ? cssSelector : undefined,
+          tabId: tabId ? parseInt(tabId) : undefined,
+        });
+        result = result.replace(m[0], content);
       }
     }
-  }
-  if (errors.length > 0) {
-    await showFailureToast(errors.join("\n"), { title: "Dynamic execution failed" });
-  }
-  return result;
-}
-
-function replace(prompt: string, entries: [string, string][]): string {
-  prompt = prompt.replace("\\n", "\n");
-
-  let result = entries.reduce((acc, [key, value]) => {
-    const r = new RegExp(`{{\\s*${key}}}\\s*`, "g");
-    return acc.replaceAll(r, value);
-  }, prompt);
-
-  for (let i = 0; i < 2; i++) {
-    ASCII_TABLES.forEach(([key, value]) => {
-      result = result.replaceAll(key, value);
-    });
   }
   return result;
 }
