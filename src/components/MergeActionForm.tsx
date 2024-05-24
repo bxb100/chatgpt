@@ -73,7 +73,7 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
       <Form.TextField title="Description" placeholder="Enter description" {...itemProps.description} />
       <Form.Dropdown title="Icon" {...itemProps.icon}>
         {Object.keys(Icon).map((key) => (
-          <Form.Dropdown.Item key={key} value={key} title={key} />
+          <Form.Dropdown.Item key={key} value={key} title={key} icon={Icon[key as keyof typeof Icon]}/>
         ))}
       </Form.Dropdown>
       <Form.TextArea
