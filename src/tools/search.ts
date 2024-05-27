@@ -13,15 +13,13 @@ export default class SearchTool implements Tool<Infer> {
     const response = await fetch(`https://s.jina.ai/${input.keywords}`, {
       method: "GET",
     });
-    const res = await response.text();
-    console.log(res);
-    return res;
+    return response.text();
   }
 
   define() {
     return {
       name: "search",
-      description: "Useful for search the web to retrive real-time and accurate information",
+      description: "Useful for search the web to retrieve real-time and accurate information",
       schema,
     };
   }

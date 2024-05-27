@@ -4,10 +4,11 @@ import { Model } from "../type";
 import { ChatCompletionMessageParam, ChatCompletionUserMessageParam } from "openai/src/resources/chat/completions";
 import SearchTool from "./search";
 import fetch from "cross-fetch";
+import WebsiteTool from "./website";
 
-export abstract class Tool<T> {
-  abstract define: () => ZodFunctionDef<T>;
-  abstract execute: (input: T) => PromiseLike<string>;
+export interface Tool<T> {
+  define: () => ZodFunctionDef<T>;
+  execute: (input: T) => PromiseLike<string>;
 }
 
 class Core {
@@ -29,7 +30,6 @@ class Core {
       return null;
     }
     const response = await this.openAI.chat.completions.create({
-      // TODO: need system prompt or context here?
       model: this.model.option,
       temperature: Number(this.model.temperature),
       messages: [query],
@@ -40,6 +40,7 @@ class Core {
     const toolCalls = responseMessage.tool_calls;
     const messages: ChatCompletionMessageParam[] = [];
     if (toolCalls) {
+      console.log(responseMessage);
       messages.push(responseMessage);
       for (const toolCall of toolCalls) {
         const functionName = toolCall.function.name;
@@ -61,7 +62,7 @@ class Core {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const supportTools: Tool<any>[] = [new SearchTool()];
+export const supportTools: Tool<any>[] = [new SearchTool(), new WebsiteTool()];
 
 export default function (openAI: OpenAI, model: Model) {
   global.fetch = fetch;
