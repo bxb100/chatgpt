@@ -132,9 +132,7 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
       <Form.Checkbox
         title="Vision"
         label="Enable vision capabilities"
-        info={
-          "Enable meaning the models can take in images and answer questions about them"
-        }
+        info={"Enable meaning the models can take in images and answer questions about them"}
         {...itemProps.vision}
       />
 
@@ -145,7 +143,6 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
           ))}
         </Form.TagPicker>
       )}
-
     </Form>
   );
 };
