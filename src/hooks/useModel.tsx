@@ -89,10 +89,13 @@ export function useModel(): ModelHook {
   }, []);
 
   useEffect(() => {
-    if (data) {
+    if (isLoading) {
+      return;
+    }
+    if (data && data.length > 0) {
       LocalStorage.setItem("models", JSON.stringify(data));
     }
-  }, [data]);
+  }, [data, isLoading]);
 
   const add = useCallback(
     async (model: Model) => {
