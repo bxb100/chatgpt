@@ -5,3 +5,16 @@
 
 # misc
 .DS_Store
+
+.raycast-swift-build
+.swiftpm
+compiled_raycast_swift
+# xcode
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc

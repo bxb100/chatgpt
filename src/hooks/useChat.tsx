@@ -2,16 +2,15 @@ import { clearSearchBar, getPreferenceValues, showToast, Toast } from "@raycast/
 import { useCallback, useMemo, useState } from "react";
 import say from "say";
 import { v4 as uuidv4 } from "uuid";
-import { Chat, ChatHook, Model } from "../type";
+import { Chat, ChatHook, Message, Model } from "../type";
 import { buildUserMessage, chatTransformer } from "../utils";
 import { useAutoTTS } from "./useAutoTTS";
 import { getConfiguration, useChatGPT } from "./useChatGPT";
 import { useHistory } from "./useHistory";
-import { ChatCompletion, ChatCompletionChunk } from "openai/resources/chat/completions";
 import { Stream } from "openai/streaming";
 import { proxyAgent } from "../utils/proxy";
 import Tools from "../tools";
-import { ChatCompletionUserMessageParam } from "openai/src/resources/chat/completions";
+import { type ChatCompletion, type ChatCompletionChunk } from "openai/resources";
 
 export function useChat<T extends Chat>(props: T[]): ChatHook {
   const [data, setData] = useState<Chat[]>(props);
@@ -70,7 +69,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
       };
     };
 
-    const userMessage: ChatCompletionUserMessageParam = {
+    const userMessage: Message = {
       role: "user",
       content: [...buildUserMessage(question, files)],
     };

@@ -37,7 +37,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const addAction = useCallback(
     async (newAction: IAction) => {
-      await setValue([newAction, ...(value || [])]);
+      await setValue([...(value || []), newAction]);
     },
     [value]
   );

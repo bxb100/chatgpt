@@ -46,8 +46,8 @@ export function ActionItem({ item }: ActionItemProps) {
           <Action
             title="Ask GPT"
             onAction={() =>
-              handleAction(item, (text) =>
-                push(<ResultPage action={item} model={model || DEFAULT_MODEL} text={text} />)
+              handleAction(item, (texts) =>
+                push(<ResultPage action={item} model={model || DEFAULT_MODEL} texts={texts} />)
               )
             }
             icon={Icon.Play}
@@ -89,8 +89,13 @@ export function ActionItem({ item }: ActionItemProps) {
             <List.Item.Detail.Metadata>
               <List.Item.Detail.Metadata.Label title={"id"} text={item.id} />
               <List.Item.Detail.Metadata.Label title={"title"} text={item.title} />
-              <List.Item.Detail.Metadata.Label title={"icon"} text={item.icon} />
+              <List.Item.Detail.Metadata.Label
+                title={"icon"}
+                text={item.icon}
+                icon={Icon[item.icon as keyof typeof Icon]}
+              />
               <List.Item.Detail.Metadata.Label title={"model"} text={model?.option || DEFAULT_MODEL.option} />
+              <List.Item.Detail.Metadata.Label title={"show diff"} text={item.showDiff ? "True" : "False"} />
             </List.Item.Detail.Metadata>
           }
         />

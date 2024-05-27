@@ -9,7 +9,8 @@ export async function renders(template: string) {
 
   const spans = Mustache.parse(template);
   visitor(spans, tags);
-  return Mustache.render(template, await handler(tags));
+  const view = await handler(tags);
+  return [Mustache.render(template, view), Object.values(view)[0]];
 }
 
 function visitor(spans: TemplateSpans, ctx: Set<string>) {
@@ -28,7 +29,7 @@ function visitor(spans: TemplateSpans, ctx: Set<string>) {
 async function handler(ctx: Set<string>) {
   const view: { [k: string]: string } = {};
   for (const key of ctx) {
-    if (key === "select" || key === "selectText") {
+    if (key === "select" || key === "selectText" || key === "selection") {
       view[key] = await getSelectedText();
     } else if (key === "clipboard" || key === "clipboardText") {
       view[key] = (await Clipboard.readText()) || "";

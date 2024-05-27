@@ -1,7 +1,6 @@
 import { toTool, ZodFunctionDef } from "openai-zod-functions";
 import OpenAI from "openai";
-import { Model } from "../type";
-import { ChatCompletionMessageParam, ChatCompletionUserMessageParam } from "openai/src/resources/chat/completions";
+import { Message, Model } from "../type";
 import SearchTool from "./search";
 import fetch from "cross-fetch";
 import WebsiteTool from "./website";
@@ -23,9 +22,7 @@ class Core {
     }
   };
 
-  public call: (query: ChatCompletionUserMessageParam) => PromiseLike<ChatCompletionMessageParam[] | null> = async (
-    query
-  ) => {
+  public call: (query: Message) => PromiseLike<Message[] | null> = async (query) => {
     if (this.tools.length === 0) {
       return null;
     }
@@ -38,7 +35,7 @@ class Core {
     });
     const responseMessage = response.choices[0].message;
     const toolCalls = responseMessage.tool_calls;
-    const messages: ChatCompletionMessageParam[] = [];
+    const messages: Message[] = [];
     if (toolCalls) {
       console.log(responseMessage);
       messages.push(responseMessage);

@@ -37,20 +37,20 @@ function Quick() {
     setAction(action);
   }, [isLoading, initIsLoading, modelLoading]);
 
-  const [text, setText] = useState<string | undefined>(undefined);
+  const [texts, setTexts] = useState<string[] | undefined>(undefined);
 
   useEffect(() => {
     if (action && model) {
       (async () => {
-        await handleAction(action, setText, () => {
+        await handleAction(action, setTexts, () => {
           popToRoot({ clearSearchBar: true });
         });
       })();
     }
   }, [model, action]);
 
-  return action && model && text ? (
-    <ResultPage action={action} model={model} text={text} />
+  return action && model && texts ? (
+    <ResultPage action={action} model={model} texts={texts} />
   ) : (
     <Detail isLoading={true} />
   );

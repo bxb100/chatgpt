@@ -13,10 +13,10 @@ import {
 } from "@raycast/api";
 import { showFailureToast, useForm } from "@raycast/utils";
 import { GenerateImage, GenerateImageParams, OpenAIImageGenerateParams, StoredImage } from "./type";
-import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
-import OpenAI from "openai/index";
+import OpenAI from "openai";
 import fetch from "cross-fetch";
 import { getConfigUrl, isSquare } from "./utils";
+import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
 
 export default function Image() {
   const [openai] = useState(() => {

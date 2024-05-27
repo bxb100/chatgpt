@@ -8,6 +8,7 @@ export type IAction = {
   icon: keyof typeof Icon | string;
   prompt: string;
   default: boolean;
+  showDiff?: boolean;
 };
 
 const systemPrompt =
@@ -94,6 +95,28 @@ const initialActions: IAction[] = [
     icon: "MagnifyingGlass",
     prompt: `${systemPrompt} Summarize the text below and give me a list of bullet points with key insights and the most important facts.{{content}}`,
     default: false,
+  },
+  // https://prompts.ray.so/raycast
+  {
+    id: "10",
+    title: "Fix Spelling and Grammar",
+    modelId: "default",
+    description: "Fix Spelling and Grammar",
+    icon: "RaycastLogoNeg",
+    prompt: `Act as a spelling corrector and improver. Reply to each message only with the rewritten text
+    
+Strictly follow these rules:
+- Correct spelling, grammar and punctuation
+- ALWAYS detect and maintain the original language of the text
+- NEVER surround the rewritten text with quotes
+- Don't replace urls with markdown links
+- Don't change emojis
+
+Text: {{select}}
+
+Fixed Text:`,
+    default: false,
+    showDiff: true,
   },
 ];
 

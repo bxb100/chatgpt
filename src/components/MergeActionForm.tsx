@@ -46,6 +46,7 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
       icon: action?.icon || "Paragraph",
       modelId: action?.modelId || "default",
       default: action?.default || false,
+      showDiff: action?.showDiff || false,
     },
   });
 
@@ -94,6 +95,7 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
           </Form.Dropdown>
         )
       }
+      <Form.Checkbox label="Show Diff" {...itemProps.showDiff} />
     </Form>
   );
 }

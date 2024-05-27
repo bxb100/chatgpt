@@ -5,14 +5,14 @@ import { renders } from "./template";
 
 async function handleAction(
   action: IAction,
-  callback: (text: string) => void | PromiseLike<void>,
+  callback: (texts: string[]) => void | PromiseLike<void>,
   onFail?: (error: unknown) => void | PromiseLike<void>
 ) {
   const toast = await showToast(Toast.Style.Animated, `Executing ${action.title}`);
 
   try {
-    const text = await renders(action.prompt);
-    callback(text);
+    const texts = await renders(action.prompt);
+    callback(texts);
     toast.style = Toast.Style.Success;
     toast.message = `${action.title} Executed`;
   } catch (error) {
