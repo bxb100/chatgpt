@@ -10,6 +10,8 @@ import { useHistory } from "./useHistory";
 import { ChatCompletion, ChatCompletionChunk } from "openai/resources/chat/completions";
 import { Stream } from "openai/streaming";
 import { proxyAgent } from "../utils/proxy";
+import Tools from "../tools";
+import { ChatCompletionUserMessageParam } from "openai/src/resources/chat/completions";
 
 export function useChat<T extends Chat>(props: T[]): ChatHook {
   const [data, setData] = useState<Chat[]>(props);
@@ -68,6 +70,14 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
       };
     };
 
+    const userMessage: ChatCompletionUserMessageParam = {
+      role: "user",
+      content: [...buildUserMessage(question, files)],
+    };
+
+    const tools = Tools(chatGPT, model);
+    const res = await tools.call(userMessage);
+
     await chatGPT.chat.completions
       .create(
         {
@@ -75,7 +85,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
           temperature: Number(model.temperature),
           messages: [
             ...chatTransformer(model, data.reverse()),
-            { role: "user", content: [...buildUserMessage(question, files)] },
+            ...(res ?? [userMessage]),
           ],
           stream: useStream,
         },

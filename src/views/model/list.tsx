@@ -50,15 +50,22 @@ const ModelDetailView = (props: { model: Model; markdown?: string | null | undef
       markdown={markdown ?? `${model.prompt}`}
       metadata={
         <List.Item.Detail.Metadata>
-          <List.Item.Detail.Metadata.TagList title="Model">
-            <List.Item.Detail.Metadata.TagList.Item text={model.option} />
-          </List.Item.Detail.Metadata.TagList>
+          <List.Item.Detail.Metadata.Label title="Model" text={model.option} />
           <List.Item.Detail.Metadata.Label
             title="Temperature"
             text={model.temperature.toLocaleString()}
             icon={icons[Math.min(Math.floor(t / 0.5), 3)]}
           />
           <List.Item.Detail.Metadata.Label title="Vision capabilities" text={model.vision ? "Enable" : "Disable"} />
+          {
+            (model.enableFunctions ?? []).length > 0 && (
+              <List.Item.Detail.Metadata.TagList title="Enable Functions">
+                {model.enableFunctions?.map((f) => (
+                  <List.Item.Detail.Metadata.TagList.Item key={f} text={f} />
+                ))}
+              </List.Item.Detail.Metadata.TagList>
+            )
+          }
           <List.Item.Detail.Metadata.Separator />
           <List.Item.Detail.Metadata.Label title="ID" text={model.id} />
           <List.Item.Detail.Metadata.Label title="Updated at" text={new Date(model.updated_at ?? 0).toLocaleString()} />

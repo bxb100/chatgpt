@@ -6,6 +6,7 @@ import { parse } from "csv-parse/sync";
 import { useState } from "react";
 import { getConfiguration } from "../../hooks/useChatGPT";
 import { DEFAULT_MODEL } from "../../hooks/useModel";
+import { supportTools } from "../../tools";
 
 export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; name?: string }) => {
   const { use, model } = props;
@@ -56,6 +57,7 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
       prompt: model?.prompt ?? DEFAULT_MODEL.prompt,
       pinned: model?.pinned ?? false,
       vision: model?.vision ?? false,
+      enableFunctions: model?.enableFunctions ?? [],
     },
   });
 
@@ -86,7 +88,7 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Submit" icon={Icon.SaveDocument} onSubmit={handleSubmit} />
+          <Action.SubmitForm title="Submit" icon={Icon.Checkmark} onSubmit={handleSubmit} />
           <Action
             title="Toggle Awesome Prompts"
             icon={{ source: "🧠" }}
@@ -125,9 +127,25 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
           ))}
         </Form.Dropdown>
       )}
-
-      <Form.Checkbox title="Vision" label="Enable vision capabilities" {...itemProps.vision} />
       {model?.id !== "default" && <Form.Checkbox title="Pinned" label="Pin model" {...itemProps.pinned} />}
+
+      <Form.Checkbox
+        title="Vision"
+        label="Enable vision capabilities"
+        info={
+          "Enable meaning the models can take in images and answer questions about them"
+        }
+        {...itemProps.vision}
+      />
+
+      {supportTools.length > 0 && (
+        <Form.TagPicker title="Functions" {...itemProps.enableFunctions}>
+          {supportTools.map((tool) => (
+            <Form.TagPicker.Item key={tool.define().name} title={tool.define().name} value={tool.define().name} />
+          ))}
+        </Form.TagPicker>
+      )}
+
     </Form>
   );
 };
