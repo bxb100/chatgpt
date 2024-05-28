@@ -36,7 +36,7 @@ class Core {
     this.timerId && clearInterval(this.timerId);
     this.timerId = setInterval(() => {
       this.eventEmitter.emit("trigger", `${msg}${".".repeat((this.count++ % 3) + 1)}`);
-    }, 600)
+    }, 600);
   }
 
   public call: (query: Message) => PromiseLike<Message[] | null> = async (query) => {
@@ -44,7 +44,7 @@ class Core {
       return null;
     }
     try {
-      this._emit("Detecting tools")
+      this._emit("Detecting tools");
       const response = await this.openAI.chat.completions.create({
         model: this.model.option,
         temperature: Number(this.model.temperature),
@@ -59,7 +59,7 @@ class Core {
         // console.log(responseMessage);
         messages.push(responseMessage);
         for (const toolCall of toolCalls) {
-          this._emit(`Executing ${ toolCall.function.name } with ${ toolCall.function.arguments }`);
+          this._emit(`Executing ${toolCall.function.name} with ${toolCall.function.arguments}`);
           const functionName = toolCall.function.name;
           const functionToCall = this.tools.find((t) => t.define().name === functionName);
           if (functionToCall === undefined) {

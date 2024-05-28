@@ -76,98 +76,98 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
     };
 
     try {
-    const core = tools(chatGPT, model);
-    core.onTrigger(msg => {
-      if (useStream) {
-        setStreamData({ ...chat, answer: msg });
-      } else {
-        setData((prev) => {
-          return prev.map((a) => {
-            if (a.id === chat.id) {
-              return { ...a, answer: msg };
-            }
-            return a;
-          });
-        });
-      }
-    })
-    const res = await core.call(userMessage);
-
-    await chatGPT.chat.completions
-      .create(
-        {
-          model: model.option,
-          temperature: Number(model.temperature),
-          messages: [...chatTransformer(model, data.reverse()), ...(res ?? []), userMessage],
-          stream: useStream,
-        },
-        {
-          httpAgent: proxy,
-          // https://github.com/openai/openai-node/blob/master/examples/azure.ts
-          // Azure OpenAI requires a custom baseURL, api-version query param, and api-key header.
-          query: { ...getHeaders().params },
-          headers: { ...getHeaders().apiKey },
-        }
-      )
-      .then(async (res) => {
+      const core = tools(chatGPT, model);
+      core.onTrigger((msg) => {
         if (useStream) {
-          const stream = res as Stream<ChatCompletionChunk>;
-
-          for await (const chunk of stream) {
-            try {
-              const content = chunk.choices[0]?.delta?.content;
-
-              if (content) {
-                chat.answer += chunk.choices[0].delta.content;
-                setStreamData({ ...chat, answer: chat.answer });
-              }
-            } catch (error) {
-              toast.title = "Error";
-              toast.message = `Couldn't stream message: ${error}`;
-              toast.style = Toast.Style.Failure;
-              setLoading(false);
-            }
-          }
-
-          setTimeout(async () => {
-            setStreamData(undefined);
-          }, 5);
+          setStreamData({ ...chat, answer: msg });
         } else {
-          const completion = res as ChatCompletion;
-          chat = { ...chat, answer: completion.choices.map((x) => x.message)[0]?.content ?? "" };
-        }
-        if (isAutoTTS) {
-          say.stop();
-          say.speak(chat.answer);
-        }
-        setLoading(false);
-        toast.title = "Got your answer!";
-        toast.style = Toast.Style.Success;
-
-        setData((prev) => {
-          return prev.map((a) => {
-            if (a.id === chat.id) {
-              return chat;
-            }
-            return a;
+          setData((prev) => {
+            return prev.map((a) => {
+              if (a.id === chat.id) {
+                return { ...a, answer: msg };
+              }
+              return a;
+            });
           });
-        });
-        if (!isHistoryPaused) {
-          await history.add(chat);
         }
-      })
-      .catch((err) => {
-        if (err?.message) {
-          if (err.message.includes("429")) {
-            toast.title = "You've reached your API limit";
-            toast.message = "Please upgrade to pay-as-you-go";
-          } else {
-            toast.title = "Error";
-            toast.message = err.message;
-          }
-        }
-        toast.style = Toast.Style.Failure;
       });
+      const res = await core.call(userMessage);
+
+      await chatGPT.chat.completions
+        .create(
+          {
+            model: model.option,
+            temperature: Number(model.temperature),
+            messages: [...chatTransformer(model, data.reverse()), ...(res ?? []), userMessage],
+            stream: useStream,
+          },
+          {
+            httpAgent: proxy,
+            // https://github.com/openai/openai-node/blob/master/examples/azure.ts
+            // Azure OpenAI requires a custom baseURL, api-version query param, and api-key header.
+            query: { ...getHeaders().params },
+            headers: { ...getHeaders().apiKey },
+          }
+        )
+        .then(async (res) => {
+          if (useStream) {
+            const stream = res as Stream<ChatCompletionChunk>;
+
+            for await (const chunk of stream) {
+              try {
+                const content = chunk.choices[0]?.delta?.content;
+
+                if (content) {
+                  chat.answer += chunk.choices[0].delta.content;
+                  setStreamData({ ...chat, answer: chat.answer });
+                }
+              } catch (error) {
+                toast.title = "Error";
+                toast.message = `Couldn't stream message: ${error}`;
+                toast.style = Toast.Style.Failure;
+                setLoading(false);
+              }
+            }
+
+            setTimeout(async () => {
+              setStreamData(undefined);
+            }, 5);
+          } else {
+            const completion = res as ChatCompletion;
+            chat = { ...chat, answer: completion.choices.map((x) => x.message)[0]?.content ?? "" };
+          }
+          if (isAutoTTS) {
+            say.stop();
+            say.speak(chat.answer);
+          }
+          setLoading(false);
+          toast.title = "Got your answer!";
+          toast.style = Toast.Style.Success;
+
+          setData((prev) => {
+            return prev.map((a) => {
+              if (a.id === chat.id) {
+                return chat;
+              }
+              return a;
+            });
+          });
+          if (!isHistoryPaused) {
+            await history.add(chat);
+          }
+        })
+        .catch((err) => {
+          if (err?.message) {
+            if (err.message.includes("429")) {
+              toast.title = "You've reached your API limit";
+              toast.message = "Please upgrade to pay-as-you-go";
+            } else {
+              toast.title = "Error";
+              toast.message = err.message;
+            }
+          }
+          toast.style = Toast.Style.Failure;
+        });
     } catch (error) {
       await showFailureToast(error);
     } finally {
