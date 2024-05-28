@@ -9,8 +9,9 @@ import { getConfiguration, useChatGPT } from "./useChatGPT";
 import { useHistory } from "./useHistory";
 import { Stream } from "openai/streaming";
 import { proxyAgent } from "../utils/proxy";
-import Tools from "../tools";
+import tools from "../tools";
 import { type ChatCompletion, type ChatCompletionChunk } from "openai/resources";
+import { showFailureToast } from "@raycast/utils";
 
 export function useChat<T extends Chat>(props: T[]): ChatHook {
   const [data, setData] = useState<Chat[]>(props);
@@ -74,8 +75,23 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
       content: [...buildUserMessage(question, files)],
     };
 
-    const tools = Tools(chatGPT, model);
-    const res = await tools.call(userMessage);
+    try {
+    const core = tools(chatGPT, model);
+    core.onTrigger(msg => {
+      if (useStream) {
+        setStreamData({ ...chat, answer: msg });
+      } else {
+        setData((prev) => {
+          return prev.map((a) => {
+            if (a.id === chat.id) {
+              return { ...a, answer: msg };
+            }
+            return a;
+          });
+        });
+      }
+    })
+    const res = await core.call(userMessage);
 
     await chatGPT.chat.completions
       .create(
@@ -151,8 +167,12 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
           }
         }
         toast.style = Toast.Style.Failure;
-        setLoading(false);
       });
+    } catch (error) {
+      await showFailureToast(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const clear = useCallback(async () => {

@@ -53,7 +53,10 @@ declare type Preferences = ExtensionPreferences
 
 declare namespace Preferences {
   /** Preferences accessible in the `ask` command */
-  export type Ask = ExtensionPreferences & {}
+  export type Ask = ExtensionPreferences & {
+  /** OpenWeatherMap API Key - Enter your personal OpenWeatherMap API Key */
+  "openweatherApiKey"?: string
+}
   /** Preferences accessible in the `image` command */
   export type Image = ExtensionPreferences & {
   /** Use Different Provider - Use different provider for image generation */

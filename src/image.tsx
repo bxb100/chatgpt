@@ -20,7 +20,7 @@ import { useLocalStorage } from "@raycast/utils/dist/useLocalStorage";
 
 export default function Image() {
   const [openai] = useState(() => {
-    const preferences = getPreferenceValues<Preferences & Preferences.Image>();
+    const preferences = getPreferenceValues<Preferences.Image>();
     if (preferences.usingDifferentProvider) {
       return buildOpenAI(preferences.otherProviderToken!, preferences.otherProviderEndpoint);
     } else {

@@ -35,7 +35,16 @@
       "title": "Ask Question",
       "subtitle": "ChatGPT",
       "description": "Ask ChatGPT via Raycast",
-      "mode": "view"
+      "mode": "view",
+      "preferences": [
+        {
+          "name": "openweatherApiKey",
+          "description": "Enter your personal OpenWeatherMap API Key",
+          "type": "password",
+          "title": "OpenWeatherMap API Key",
+          "required": false
+        }
+      ]
     },
     {
       "name": "image",
