@@ -37,7 +37,7 @@ export default class WeatherTool implements Tool<Infer> {
   define() {
     return {
       name: "get_current_weather",
-      description: "Get the current weather in a given location",
+      description: "Get today’s weather in a given location",
       schema,
     };
   }

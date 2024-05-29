@@ -9,7 +9,7 @@ import { getConfiguration, useChatGPT } from "./useChatGPT";
 import { useHistory } from "./useHistory";
 import { Stream } from "openai/streaming";
 import { proxyAgent } from "../utils/proxy";
-import tools from "../tools";
+import tools, { EventType } from "../tools";
 import { type ChatCompletion, type ChatCompletionChunk } from "openai/resources";
 import { showFailureToast } from "@raycast/utils";
 
@@ -77,7 +77,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
 
     try {
       const core = tools(chatGPT, model);
-      core.onTrigger((msg) => {
+      core.eventEmitterInstance.addListener(EventType.TRIGGER, (msg: string) => {
         if (useStream) {
           setStreamData({ ...chat, answer: msg });
         } else {

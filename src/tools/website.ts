@@ -19,7 +19,7 @@ export default class WebsiteTool implements Tool<Infer> {
   define() {
     return {
       name: "website",
-      description: "Fetch the content of a website by its url",
+      description: "Retrieve the content of a website by its URL",
       schema,
     };
   }

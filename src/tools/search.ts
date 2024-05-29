@@ -19,7 +19,7 @@ export default class SearchTool implements Tool<Infer> {
   define() {
     return {
       name: "search",
-      description: "Useful for search the web to retrieve real-time and accurate information",
+      description: "Useful for searching the web to retrieve real-time and accurate information",
       schema,
     };
   }

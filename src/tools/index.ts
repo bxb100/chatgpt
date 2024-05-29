@@ -12,6 +12,10 @@ export interface Tool<T> {
   execute: (input: T) => PromiseLike<string>;
 }
 
+export enum EventType {
+  TRIGGER = "trigger",
+}
+
 class Core {
   readonly tools: Tool<unknown>[] = [];
   readonly eventEmitter = new EventEmitter();
@@ -25,8 +29,8 @@ class Core {
     }
   };
 
-  public onTrigger(listener: (msg: string) => void) {
-    this.eventEmitter.on("trigger", listener);
+  get eventEmitterInstance() {
+    return this.eventEmitter;
   }
 
   private count = 0;
@@ -35,7 +39,7 @@ class Core {
   _emit(msg: string) {
     this.timerId && clearInterval(this.timerId);
     this.timerId = setInterval(() => {
-      this.eventEmitter.emit("trigger", `${msg}${".".repeat((this.count++ % 3) + 1)}`);
+      this.eventEmitter.emit(EventType.TRIGGER, `${msg}${".".repeat((this.count++ % 3) + 1)}`);
     }, 600);
   }
 
