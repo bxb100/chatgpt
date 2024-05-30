@@ -61,6 +61,10 @@ export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefi
     }
   }, [answerMd]);
 
+  useEffect(() => {
+    console.log(chat);
+  }, []);
+
   const header = `### Answer\n\n${answerMd || loadingText}`;
 
   return <List.Item.Detail markdown={`${header}\n\n${functionMd}\n\n${questionMd}`} />;

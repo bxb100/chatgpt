@@ -80,7 +80,9 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
       const extra: [string, string][] = [];
       core.eventEmitterInstance.addListener(EventType.TRIGGER, (key: string, msg: string) => {
         extra.push([key, msg]);
-        // eventually setData using local variable, not previous data, but can we rewrite it?
+        // need update detail simultaneously, so we can't directly use `data.tools = extra`
+        // but `setData` and `addHistory` using local variable, not previous data
+        // so can we rewrite it?
         setData((prev) => {
           return prev.map((a) => {
             if (a.id === chat.id) {
@@ -152,7 +154,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
             });
           });
           if (!isHistoryPaused) {
-            await history.add(chat);
+            await history.add({ ...chat, tools: extra });
           }
         })
         .catch((err) => {
