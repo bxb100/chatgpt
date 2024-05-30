@@ -87,3 +87,7 @@ export const isSquare = (size: string) => {
   const [w, h] = size.split("x");
   return parseInt(w) < 1024 && w === h;
 };
+
+export const capitalization = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};

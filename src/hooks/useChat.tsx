@@ -36,7 +36,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
   const chatGPT = useChatGPT();
 
   async function ask(question: string, files: string[], model: Model) {
-    clearSearchBar();
+    await clearSearchBar();
 
     setLoading(true);
     const toast = await showToast({
@@ -77,19 +77,16 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
 
     try {
       const core = tools(chatGPT, model);
-      core.eventEmitterInstance.addListener(EventType.TRIGGER, (msg: string) => {
-        if (useStream) {
-          setStreamData({ ...chat, answer: msg });
-        } else {
-          setData((prev) => {
-            return prev.map((a) => {
-              if (a.id === chat.id) {
-                return { ...a, answer: msg };
-              }
-              return a;
-            });
+      core.eventEmitterInstance.addListener(EventType.TRIGGER, (key: string, msg: string) => {
+        chat.metadata = { ...chat.metadata, [key]: msg };
+        setData((prev) => {
+          return prev.map((a) => {
+            if (a.id === chat.id) {
+              return { ...a, metadata: { ...a.metadata, [key]: msg } };
+            }
+            return a;
           });
-        }
+        });
       });
       const res = await core.call(userMessage);
 

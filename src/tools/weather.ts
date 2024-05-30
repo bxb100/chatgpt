@@ -23,7 +23,6 @@ export default class WeatherTool implements Tool<Infer> {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         const kelvin_temp = data.main.temp;
         const celsius_temp = kelvin_temp - 273.15;
         return `The weather in ${location} is ${celsius_temp}°C, weather description is ${data.weather[0].description}`;

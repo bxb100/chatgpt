@@ -28,8 +28,7 @@ function Quick() {
     const action = defaultAction();
 
     if (action == undefined) {
-      showHUD("No default action found, Please set one in the action")
-        .then(() => popToRoot({ clearSearchBar: true }));
+      showHUD("No default action found, Please set one in the action").then(() => popToRoot({ clearSearchBar: true }));
       return;
     }
 

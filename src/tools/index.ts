@@ -33,14 +33,8 @@ class Core {
     return this.eventEmitter;
   }
 
-  private count = 0;
-  private timerId: NodeJS.Timeout | null = null;
-
-  _emit(msg: string) {
-    this.timerId && clearInterval(this.timerId);
-    this.timerId = setInterval(() => {
-      this.eventEmitter.emit(EventType.TRIGGER, `${msg}${".".repeat((this.count++ % 3) + 1)}`);
-    }, 600);
+  _emit(key: string, msg: string) {
+    this.eventEmitter.emit(EventType.TRIGGER, key, msg);
   }
 
   public call: (query: Message) => PromiseLike<Message[] | null> = async (query) => {
@@ -48,7 +42,7 @@ class Core {
       return null;
     }
     try {
-      this._emit("Detecting tools");
+      this._emit("OpenAI", "choosing tools");
       const response = await this.openAI.chat.completions.create({
         model: this.model.option,
         temperature: Number(this.model.temperature),
@@ -63,13 +57,13 @@ class Core {
         // console.log(responseMessage);
         messages.push(responseMessage);
         for (const toolCall of toolCalls) {
-          this._emit(`Executing ${toolCall.function.name} with ${toolCall.function.arguments}`);
           const functionName = toolCall.function.name;
           const functionToCall = this.tools.find((t) => t.define().name === functionName);
           if (functionToCall === undefined) {
             continue;
           }
           const functionArgs = JSON.parse(toolCall.function.arguments);
+          this._emit(`${toolCall.function.name}`, `${JSON.stringify(functionArgs)}`);
           const functionResponse = await functionToCall.execute(functionArgs);
           messages.push({
             tool_call_id: toolCall.id,
@@ -81,7 +75,6 @@ class Core {
       return messages;
     } finally {
       // clear
-      this.timerId && clearInterval(this.timerId);
       this.eventEmitter.removeAllListeners();
     }
   };

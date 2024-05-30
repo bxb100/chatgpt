@@ -19,7 +19,7 @@ export default function ResultPage({ action, model, texts }: ResultPageProps) {
   const returnedText = useMemo(() => {
     const isStream = chat.streamData && chat.streamData.id === chat.selectedChatId;
     return isStream ? chat.streamData?.answer : chat.data[0]?.answer;
-  }, [chat.streamData, chat.selectedChatId, chat.isLoading]);
+  }, [chat.streamData, chat.selectedChatId, chat.isLoading, chat.data]);
 
   useEffect(() => {
     if (chat.historyIsLoading) {
