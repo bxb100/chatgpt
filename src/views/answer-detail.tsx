@@ -1,7 +1,6 @@
 import { List } from "@raycast/api";
 import { Chat } from "../type";
 import { useEffect, useMemo, useState } from "react";
-import { capitalization } from "../utils";
 
 export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefined }) => {
   const { chat, streamData } = props;
@@ -21,28 +20,32 @@ export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefi
           return `![](file://${file}?raycast-width=${width})`;
         })
         .join("\n") || "";
-    return `\n\n---\n\n### Question\n${chat.question.trimEnd()}\n${images}`;
+    return `---\n\n### Question\n${chat.question.trimEnd()}\n${images}`;
   }, [isStreaming, chat.question, chat.files]);
 
   const functionMd = useMemo(() => {
-    if (!chat.metadata) {
+    if (!chat.tools) {
       return "";
     }
-    const s = Object.entries(chat.metadata)
+    const s = chat.tools
       .map(([k, v]) => {
-        return `- **${capitalization(k)}**: ${v}`;
+        return `- **${k}**: ${v}`;
       })
       .join("\n");
-    return "\n\n---\n\n### Function\n" + s;
-  }, [chat.metadata]);
+    return "---\n\n### Function\n" + s;
+  }, [chat.tools]);
 
   const answerMd = useMemo(() => {
     return isStreaming ? streamData?.answer : chat.answer;
   }, [isStreaming, streamData?.answer, chat.answer]);
 
   const [loadingText, setLoadingText] = useState("Loading...");
+  const [start, setStart] = useState(true);
 
   useEffect(() => {
+    if (!start) {
+      return;
+    }
     let count = 0;
     const interval = setInterval(() => {
       setLoadingText("Loading" + ".".repeat((count++ % 3) + 1));
@@ -50,7 +53,15 @@ export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefi
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [start]);
 
-  return <List.Item.Detail markdown={`### Answer\n${answerMd || loadingText}${functionMd}${questionMd}`} />;
+  useEffect(() => {
+    if (answerMd) {
+      setStart(false);
+    }
+  }, [answerMd]);
+
+  const header = `### Answer\n\n${answerMd || loadingText}`;
+
+  return <List.Item.Detail markdown={`${header}\n\n${functionMd}\n\n${questionMd}`} />;
 };

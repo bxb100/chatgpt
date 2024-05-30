@@ -16,7 +16,7 @@ export interface Question {
 
 export interface Chat extends Question {
   answer: string;
-  metadata?: { [k: string]: string };
+  tools?: [string, string][];
 }
 
 export interface SavedChat extends Chat {

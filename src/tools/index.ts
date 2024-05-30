@@ -42,7 +42,7 @@ class Core {
       return null;
     }
     try {
-      this._emit("OpenAI", "choosing tools");
+      this._emit("api", "execute function calling");
       const response = await this.openAI.chat.completions.create({
         model: this.model.option,
         temperature: Number(this.model.temperature),

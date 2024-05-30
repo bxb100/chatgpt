@@ -77,12 +77,14 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
 
     try {
       const core = tools(chatGPT, model);
+      const extra: [string, string][] = [];
       core.eventEmitterInstance.addListener(EventType.TRIGGER, (key: string, msg: string) => {
-        chat.metadata = { ...chat.metadata, [key]: msg };
+        extra.push([key, msg]);
+        // eventually setData using local variable, not previous data, but can we rewrite it?
         setData((prev) => {
           return prev.map((a) => {
             if (a.id === chat.id) {
-              return { ...a, metadata: { ...a.metadata, [key]: msg } };
+              return { ...a, tools: [...(a.tools || []), [key, msg]] };
             }
             return a;
           });
@@ -144,7 +146,7 @@ export function useChat<T extends Chat>(props: T[]): ChatHook {
           setData((prev) => {
             return prev.map((a) => {
               if (a.id === chat.id) {
-                return chat;
+                return { ...chat, tools: extra };
               }
               return a;
             });
