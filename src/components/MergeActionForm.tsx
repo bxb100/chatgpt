@@ -67,7 +67,7 @@ export default function MergeActionForm({ addAction, updateAction, action }: Add
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Save Action" onSubmit={handleSubmit} />
+          <Action.SubmitForm icon="icons/tabler/check.svg" title="Save Action" onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >

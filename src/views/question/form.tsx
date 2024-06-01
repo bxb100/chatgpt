@@ -79,7 +79,7 @@ export const QuestionForm = ({
         <ActionPanel>
           <Action.SubmitForm
             title="Submit"
-            icon={Icon.Checkmark}
+            icon="icons/tabler/check.svg"
             onSubmit={async () => {
               if (question.length === 0) {
                 setQuestionError("Required");

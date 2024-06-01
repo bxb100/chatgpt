@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
+import { Action, ActionPanel, Form, showToast, Toast, useNavigation } from "@raycast/api";
 import { FormValidation, useFetch, useForm } from "@raycast/utils";
 import { v4 as uuidv4 } from "uuid";
 import { CSVPrompt, Model, ModelHook } from "../../type";
@@ -91,10 +91,10 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Submit" icon={Icon.Checkmark} onSubmit={handleSubmit} />
+          <Action.SubmitForm title="Submit" icon="icons/tabler/check.svg" onSubmit={handleSubmit} />
           <Action
             title="Toggle Prompts"
-            icon={{ source: "🧠" }}
+            icon="icons/tabler/file-text-ai.svg"
             onAction={() => setAdvanceAction((s) => ({ ...s, prompts: !s.prompts }))}
             shortcut={{
               modifiers: ["cmd", "shift"],
@@ -104,7 +104,7 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
           {supportTools.length > 0 && (
             <Action
               title={"Toggle Functions"}
-              icon={{ source: "🤖" }}
+              icon="icons/tabler/function.svg"
               onAction={() => setAdvanceAction((s) => ({ ...s, functions: !s.functions }))}
               shortcut={{
                 modifiers: ["cmd", "shift"],

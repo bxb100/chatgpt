@@ -256,10 +256,10 @@ const Forms = ({
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm icon={Icon.Checkmark} title="Generate" onSubmit={handleSubmit} />
+          <Action.SubmitForm icon="icons/tabler/check.svg" title="Generate" onSubmit={handleSubmit} />
           <Action
             title={"Show Grid"}
-            icon={Icon.AppWindowGrid2x2}
+            icon="icons/tabler/grid-dots.svg"
             onAction={() => {
               if (setFirstEnter) {
                 setFirstEnter(false);
