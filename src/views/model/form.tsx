@@ -13,7 +13,7 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
   const { pop } = useNavigation();
   const { isCustomModel } = getConfiguration();
 
-  const { handleSubmit, itemProps, setValue } = useForm<Model>({
+  const { handleSubmit, itemProps, setValue, values } = useForm<Model>({
     onSubmit: async (model) => {
       const updatedModel: Model = { ...model, updated_at: new Date().toISOString() };
       const toast = await showToast({
@@ -82,7 +82,10 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
     }
   };
 
-  const [showAwesomePrompts, setShowAwesomePrompts] = useState(false);
+  const [advanceAction, setAdvanceAction] = useState({
+    prompts: false,
+    functions: values.enableFunctions?.length ?? 0 > 0,
+  });
 
   return (
     <Form
@@ -90,15 +93,30 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
         <ActionPanel>
           <Action.SubmitForm title="Submit" icon={Icon.Checkmark} onSubmit={handleSubmit} />
           <Action
-            title="Toggle Awesome Prompts"
+            title="Toggle Prompts"
             icon={{ source: "🧠" }}
-            onAction={() => setShowAwesomePrompts((s) => !s)}
+            onAction={() => setAdvanceAction((s) => ({ ...s, prompts: !s.prompts }))}
+            shortcut={{
+              modifiers: ["cmd", "shift"],
+              key: "p",
+            }}
           />
+          {supportTools.length > 0 && (
+            <Action
+              title={"Toggle Functions"}
+              icon={{ source: "🤖" }}
+              onAction={() => setAdvanceAction((s) => ({ ...s, functions: !s.functions }))}
+              shortcut={{
+                modifiers: ["cmd", "shift"],
+                key: "f",
+              }}
+            />
+          )}
         </ActionPanel>
       }
     >
       <Form.TextField title="Name" placeholder="Name your model" {...itemProps.name} />
-      {showAwesomePrompts && (
+      {advanceAction.prompts && (
         <Form.Dropdown
           id="template"
           title="Awesome Prompts"
@@ -127,16 +145,16 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
           ))}
         </Form.Dropdown>
       )}
-      {model?.id !== "default" && <Form.Checkbox title="Pinned" label="Pin model" {...itemProps.pinned} />}
+      {model?.id !== "default" && <Form.Checkbox title="Pin" label="Pin model" {...itemProps.pinned} />}
 
       <Form.Checkbox
         title="Vision"
-        label="Enable vision capabilities"
+        label="Enable upload images"
         info={"Enable meaning the models can take in images and answer questions about them"}
         {...itemProps.vision}
       />
 
-      {supportTools.length > 0 && (
+      {advanceAction.functions && supportTools.length > 0 && (
         <Form.TagPicker title="Functions" {...itemProps.enableFunctions}>
           {supportTools.map((tool) => (
             <Form.TagPicker.Item key={tool.define().name} title={tool.define().name} value={tool.define().name} />

@@ -24,7 +24,7 @@ export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefi
   }, [isStreaming, chat.question, chat.files]);
 
   const functionMd = useMemo(() => {
-    if (!chat.tools) {
+    if (!chat.tools || chat.tools.length === 0) {
       return "";
     }
     const s = chat.tools
