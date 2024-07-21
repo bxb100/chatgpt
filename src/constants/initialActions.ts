@@ -30,7 +30,7 @@ const initialActions: IAction[] = [
     modelId: "default",
     description: "Translate the text",
     icon: "Globe",
-    prompt: `${systemPrompt} Translate the following text into French. {{select}}`,
+    prompt: `Only reply the translated result and nothing else. Please translate to Chinese:\n\n{{select}}`,
     default: false,
   },
   {
