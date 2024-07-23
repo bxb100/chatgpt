@@ -94,7 +94,9 @@ export function ActionItem({ item }: ActionItemProps) {
                 text={item.icon}
                 icon={Icon[item.icon as keyof typeof Icon]}
               />
-              <List.Item.Detail.Metadata.Label title={"model"} text={model?.option || DEFAULT_MODEL.option} />
+              <List.Item.Detail.Metadata.Label title={"model"} text={model?.option || DEFAULT_MODEL.option} icon={
+                model == undefined ? {source: Icon.Warning, tintColor: Color.Red} : undefined
+              }/>
               <List.Item.Detail.Metadata.Label title={"show diff"} text={item.showDiff ? "True" : "False"} />
             </List.Item.Detail.Metadata>
           }

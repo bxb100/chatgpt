@@ -71,6 +71,8 @@ export class TikTokenClass {
  * https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4
  */
 export const CONTEXT_WINDOW: Record<string, number> = {
+  "gpt-4o-mini": 128_000, // Currently points to gpt-4o-mini-2024-07-18.
+  "gpt-4o-mini-2024-07-18": 128_000,
   "gpt-4o": 128_000, // Currently points to gpt-4o-2024-05-13.
   "gpt-4o-2024-05-13": 128_000,
   "gpt-4-turbo": 128_000, // Currently points to gpt-4-turbo-2024-04-09.
