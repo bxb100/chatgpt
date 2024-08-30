@@ -9,7 +9,7 @@ export const AnswerDetailView = (props: { chat: Chat; streamData?: Chat | undefi
   }, [streamData?.id, chat.id]);
 
   const questionMd = useMemo(() => {
-    const width = Math.floor(430 / Math.min(Math.max(chat.files.length, 1), 2));
+    const width = Math.floor(430 / Math.min(Math.max(chat.files?.length ?? 0, 1), 2));
     const images: string =
       chat.files
         ?.map((file) => {

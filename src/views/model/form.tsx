@@ -70,6 +70,8 @@ export const ModelForm = (props: { model?: Model; use: { models: ModelHook }; na
         const text = await response.text();
         return parse(text, {
           columns: true,
+          relax_quotes: true,
+          skip_records_with_error: true,
         });
       },
       keepPreviousData: true,
